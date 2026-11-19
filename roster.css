@@ -1,0 +1,197 @@
+/* Northland Nomads roster and player profiles. Scoped to #view-roster to avoid
+   changing the existing Match Studio, Methodology, analytics or report layouts. */
+#view-roster { --roster-border:#30415e; --roster-muted:#9cacca; }
+#view-roster .roster-root {min-width:0;}
+#view-roster .roster-page-heading {align-items:center;}
+#view-roster .roster-heading-pill {border:1px solid #3e5477;border-radius:999px;background:#182741;padding:11px 14px;color:#bbd4ec;font-size:10px;font-weight:800;letter-spacing:.13em;white-space:nowrap;}
+#view-roster .roster-live-dot {display:inline-block;width:8px;height:8px;border-radius:50%;background:#4de0bd;box-shadow:0 0 0 5px #4de0bd18;margin-right:11px;vertical-align:middle;}
+#view-roster .roster-overview {display:grid;grid-template-columns:minmax(0,2.1fr) repeat(3,minmax(0,.75fr));gap:0;background:linear-gradient(108deg,#24264a,#202c4c 58%,#123f49);border:1px solid #4f5682;border-radius:20px;overflow:hidden;margin-bottom:24px;min-height:144px;}
+#view-roster .roster-overview-label {display:flex;flex-direction:column;justify-content:center;padding:27px 29px;min-width:0;}
+#view-roster .roster-overview-label>span {color:#91e1cf;font-size:10px;letter-spacing:.16em;font-weight:800;margin-bottom:9px;}
+#view-roster .roster-overview-label>strong {font-size:clamp(22px,2.4vw,32px);color:#f4f4ff;line-height:1.1;letter-spacing:-.045em;}
+#view-roster .roster-overview-label>small {color:#bdc7df;font-size:11px;margin-top:10px;}
+#view-roster .roster-overview-stat {min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:15px 9px;border-left:1px solid #ffffff21;}
+#view-roster .roster-overview-stat strong {color:#f5f6ff;font-size:clamp(25px,3vw,39px);line-height:1.1;font-weight:800;letter-spacing:-.045em;}
+#view-roster .roster-overview-stat span {color:#aabbd6;font-size:10px;line-height:1.45;text-align:center;margin-top:7px;}
+#view-roster .roster-controls {display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:20px;}
+#view-roster .roster-search {background:#141e33;border:1px solid #344563;border-radius:13px;display:flex;align-items:center;gap:8px;min-height:46px;min-width:210px;flex:1;max-width:430px;padding:0 14px;color:#9daec9;}
+#view-roster .roster-search>span {font-size:25px;line-height:1;transform:translateY(-1px);}
+#view-roster .roster-search input {background:transparent;border:0;outline:0;box-shadow:none!important;min-width:0;width:100%;color:#ecf1ff;font-size:13px;min-height:44px;}
+#view-roster .roster-search input::placeholder{color:#8192b2}
+#view-roster .roster-search:focus-within {border-color:#988bfc;box-shadow:0 0 0 3px #988bfc22;}
+#view-roster .roster-filter {display:flex;gap:7px;flex-wrap:wrap;}
+#view-roster .roster-filter-btn {border:1px solid #32415d;background:#18243a;color:#acb9d2;border-radius:10px;padding:10px 12px;cursor:pointer;min-height:42px;font-size:11px;font-weight:750;display:inline-flex;align-items:center;gap:7px;}
+#view-roster .roster-filter-btn span {background:#293652;color:#a8b5d1;padding:2px 6px;border-radius:7px;font-variant-numeric:tabular-nums;}
+#view-roster .roster-filter-btn.active {border-color:#a192fc;color:#f8f5ff;background:linear-gradient(125deg,#423771,#34335e);}
+#view-roster .roster-filter-btn.active span {background:#6a5ba9;color:white;}
+#view-roster .roster-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;}
+#view-roster .roster-player-card {min-width:0;text-align:left;border:1px solid #334460;background:linear-gradient(150deg,#1a2640,#111c31 85%);border-radius:17px;padding:18px 19px 17px;color:#f2f5ff;cursor:pointer;transition:transform .16s ease,border-color .16s ease,background .16s ease;}
+#view-roster .roster-player-card:hover {transform:translateY(-3px);border-color:#9c88f6;background:linear-gradient(150deg,#272c4e,#151f38 85%)}
+#view-roster .roster-player-card:focus-visible,#view-roster .roster-back:focus-visible,#view-roster .roster-filter-btn:focus-visible {outline:3px solid #a599fd;outline-offset:3px;}
+#view-roster .roster-player-top {display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:18px;}
+#view-roster .roster-player-tag {font-size:9px;letter-spacing:.13em;color:#8de5d0;font-weight:800;}
+#view-roster .roster-arrow {border:1px solid #495675;background:#253451;color:#c5d8f5;border-radius:9px;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+#view-roster .roster-player-center {display:flex;align-items:center;gap:14px;min-width:0;padding-bottom:19px;}
+#view-roster .roster-avatar {position:relative;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--roster-a),var(--roster-b));display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;padding:3px;box-shadow:0 9px 20px #00000028;}
+#view-roster .roster-avatar::before {content:'';position:absolute;inset:4px;border-radius:12px;background:linear-gradient(142deg,#1e2949de,#19213ee8)}
+#view-roster .roster-avatar>span {position:relative;color:#f5f5ff;font-weight:850;font-size:18px;letter-spacing:-.06em;}
+#view-roster .roster-player-identity {min-width:0;display:flex;flex-direction:column;gap:5px;}
+#view-roster .roster-player-identity>strong {font-weight:750;font-size:16px;letter-spacing:-.02em;line-height:1.24;overflow-wrap:anywhere;}
+#view-roster .roster-player-identity>span {color:#9faecb;font-size:11px;}
+#view-roster .roster-player-stats {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2px;border-top:1px solid #34425a;padding-top:14px;}
+#view-roster .roster-player-stats>div {display:flex;flex-direction:column;gap:5px;}
+#view-roster .roster-player-stats>div+div {border-left:1px solid #36445c;padding-left:16px;}
+#view-roster .roster-player-stats strong {font-size:20px;font-variant-numeric:tabular-nums;letter-spacing:-.035em;}
+#view-roster .roster-player-stats span {font-size:9px;color:#899bb9;font-weight:800;letter-spacing:.09em;}
+#view-roster .roster-help-note {font-size:11px;line-height:1.6;color:#879bb8;margin:20px 0 0;}
+#view-roster .roster-no-results {border:1px dashed #415373;border-radius:15px;padding:36px;text-align:center;color:#a9bad7;}
+/* Player profile */
+#view-roster .roster-profile-top {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;}
+#view-roster .roster-back {cursor:pointer;background:#1a2843;color:#e8eaff;border:1px solid #405270;border-radius:10px;padding:11px 15px;font-size:12px;font-weight:750;min-height:43px;}
+#view-roster .roster-back>span{margin-right:7px;color:#b0a5ff;font-size:16px;vertical-align:middle;}
+#view-roster .roster-back:hover{border-color:#9d8cff;}
+#view-roster .roster-profile-top-meta {font-size:9px;letter-spacing:.12em;color:#8b9ebb;font-weight:850;}
+#view-roster .roster-profile-top-meta span{color:#a694ff;margin:0 6px;}
+#view-roster .roster-profile-layout {display:grid;grid-template-columns:minmax(270px,.82fr) minmax(0,1.65fr);align-items:start;gap:19px;min-width:0;}
+#view-roster .roster-profile-side,#view-roster .roster-profile-main {min-width:0;}
+#view-roster .roster-profile-hero {min-height:365px;position:relative;isolation:isolate;display:flex;flex-direction:column;background:radial-gradient(circle at 76% 68%,#d5f7ff2e,transparent 35%),linear-gradient(130deg,#302f60,#2c3061 48%,#174452);border:1px solid #6966a0;border-radius:19px 19px 12px 12px;overflow:hidden;padding:22px;}
+#view-roster .roster-profile-hero::before{content:'';position:absolute;z-index:-1;right:-100px;top:80px;width:380px;height:380px;border-radius:50%;border:1px solid #ffffff19;box-shadow:0 0 0 34px #ffffff08,0 0 0 83px #ffffff04;}
+#view-roster .roster-profile-hero-kicker {display:flex;gap:8px;align-items:center;font-size:9px;font-weight:850;letter-spacing:.14em;color:#b7efdf;}
+#view-roster .roster-profile-hero-kicker span {color:#b8a6ff;}
+#view-roster .roster-portrait {flex:1;display:flex;justify-content:center;align-items:center;min-height:210px;position:relative;}
+#view-roster .roster-avatar-large {height:145px;width:145px;border-radius:42px;transform:rotate(-5deg);box-shadow:0 14px 30px #070d204a;}
+#view-roster .roster-avatar-large::before{border-radius:37px;inset:7px;}
+#view-roster .roster-avatar-large>span {font-size:54px;transform:rotate(5deg);}
+#view-roster .roster-profile-name {color:#fff;font-size:clamp(29px,3.2vw,43px);font-weight:850;line-height:.99;letter-spacing:-.06em;overflow-wrap:anywhere;max-width:100%;}
+#view-roster .roster-profile-subline {display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:#d7dcfa;font-size:11px;margin-top:13px;}
+#view-roster .roster-profile-subline span+span::before{content:'•';margin-right:8px;color:#52dec0;}
+#view-roster .roster-biography {background:#1a2740;border:1px solid #354665;border-radius:12px;margin-top:11px;padding:19px;}
+#view-roster .roster-bio-header {font-size:10px;letter-spacing:.12em;font-weight:850;color:#bdabff;margin-bottom:17px;}
+#view-roster .roster-bio-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:19px 16px;}
+#view-roster .roster-bio-grid>div {display:flex;flex-direction:column;min-width:0;gap:6px;}
+#view-roster .roster-bio-grid span {font-size:11px;color:#91a3c3;}
+#view-roster .roster-bio-grid strong {font-size:13px;color:#f0f4ff;overflow-wrap:anywhere;}
+#view-roster .roster-profile-footnote {color:#748aa8;font-size:10px;line-height:1.6;padding:12px 3px;}
+#view-roster .roster-profile-title {display:flex;justify-content:space-between;align-items:end;gap:10px;margin:2px 0 20px;}
+#view-roster .roster-profile-title .eyebrow {font-size:9px;margin-bottom:10px;}
+#view-roster .roster-profile-title h2 {font-size:clamp(26px,3.4vw,39px);letter-spacing:-.05em;color:#f2f5ff;line-height:1.1;margin:0;overflow-wrap:anywhere;}
+#view-roster .roster-profile-title p {font-size:12px;color:#9caccb;margin-top:8px;}
+#view-roster .roster-profile-kpis {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+#view-roster .roster-kpi {display:flex;flex-direction:column;min-width:0;gap:7px;padding:19px 16px;background:linear-gradient(155deg,#20283f,#142036);border:1px solid #354561;border-top:3px solid #9489fd;border-radius:13px;}
+#view-roster .roster-kpi>span {font-size:10px;color:#a7b5ce;font-weight:750;letter-spacing:.02em;min-height:25px;}
+#view-roster .roster-kpi>strong {font-size:clamp(28px,3vw,40px);color:#f8f7ff;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.05em;}
+#view-roster .roster-kpi>small {font-size:10px;color:#8297b6;}
+#view-roster .roster-accent-coral {border-top-color:#ff899e;}
+#view-roster .roster-accent-mint {border-top-color:#4adab9;}
+#view-roster .roster-accent-blue {border-top-color:#77bbff;}
+#view-roster .roster-stats-section {margin-top:26px;margin-bottom:12px;}
+#view-roster .roster-stats-section h3 {font-size:22px;letter-spacing:-.04em;color:#f1f4ff;margin:0;}
+#view-roster .roster-stats-section h3 span{color:#a392ff;}
+#view-roster .roster-stats-section p {font-size:11px;margin-top:6px;color:#8a9bb7;}
+#view-roster .roster-profile-stats-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+#view-roster .roster-stat-panel {border:1px solid #34435f;border-radius:14px;background:linear-gradient(160deg,#1a263e,#131c30);min-width:0;padding:17px;}
+#view-roster .roster-stat-panel-heading {display:flex;gap:10px;justify-content:space-between;align-items:center;margin-bottom:14px;}
+#view-roster .roster-stat-panel-heading h3 {font-size:15px;color:#f1f5ff;letter-spacing:-.02em;margin:0;}
+#view-roster .roster-stat-panel-heading small {font-size:10px;color:#899abb;}
+#view-roster .roster-stat-rows {display:flex;flex-direction:column;gap:0;}
+#view-roster .roster-stat-row {display:flex;justify-content:space-between;align-items:start;gap:10px;border-top:1px solid #2c3b54;padding:10px 0;}
+#view-roster .roster-stat-row span {color:#b4c3dd;font-size:12px;line-height:1.45;}
+#view-roster .roster-stat-row strong {color:#f0f4ff;font-size:13px;white-space:nowrap;font-variant-numeric:tabular-nums;}
+#view-roster .roster-recent {background:#19243c;border:1px solid #354763;border-radius:14px;padding:18px;margin-top:14px;}
+#view-roster .roster-recent-row {display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid #30415b;padding:12px 0;}
+#view-roster .roster-recent-row>div:first-child {display:flex;flex-direction:column;gap:5px;min-width:0;}
+#view-roster .roster-recent-row>div:first-child strong {font-size:12px;color:#e7eefc;overflow-wrap:anywhere;}
+#view-roster .roster-recent-row>div:first-child span {font-size:10px;color:#8fa4c1;}
+#view-roster .roster-recent-rating {background:#245349;color:#8ff1d6;border:1px solid #367769;border-radius:9px;padding:8px 12px;font-size:17px;font-weight:850;font-variant-numeric:tabular-nums;}
+#view-roster .roster-empty-records {font-size:12px;line-height:1.65;color:#a7b8d3;background:#1b2840;border:1px dashed #425573;border-radius:13px;padding:21px;margin-top:15px;}
+@media(max-width:1320px) {
+ #view-roster .roster-profile-layout {grid-template-columns:minmax(260px,.8fr) minmax(0,1.6fr);}
+ #view-roster .roster-profile-kpis {grid-template-columns:repeat(2,minmax(0,1fr));}
+ #view-roster .roster-kpi>span {min-height:0;}
+}
+@media(max-width:1050px) {
+ #view-roster .roster-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+ #view-roster .roster-controls {flex-direction:column;align-items:stretch;}
+ #view-roster .roster-search {max-width:none;min-width:0;}
+ #view-roster .roster-profile-layout {grid-template-columns:minmax(0,1fr);}
+ #view-roster .roster-profile-side {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:stretch;}
+ #view-roster .roster-profile-hero {min-height:330px;grid-row:span 2;}
+ #view-roster .roster-biography {margin-top:0;}
+ #view-roster .roster-profile-footnote {align-self:start;}
+}
+@media(max-width:700px) {
+ #view-roster .roster-heading-pill {padding:8px 10px;font-size:9px;}
+ #view-roster .roster-overview {grid-template-columns:repeat(3,minmax(0,1fr));border-radius:16px;margin-bottom:15px;}
+ #view-roster .roster-overview-label {grid-column:1/-1;padding:17px 18px;border-bottom:1px solid #ffffff23;}
+ #view-roster .roster-overview-label strong {font-size:25px;}
+ #view-roster .roster-overview-stat {padding:13px 5px;}
+ #view-roster .roster-overview-stat:nth-child(2) {border-left:0;}
+ #view-roster .roster-overview-stat strong {font-size:25px;}
+ #view-roster .roster-overview-stat span {font-size:9px;}
+ #view-roster .roster-controls {gap:11px;}
+ #view-roster .roster-filter {flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:100%;padding-bottom:2px;}
+ #view-roster .roster-filter-btn {white-space:nowrap;flex:0 0 auto;}
+ #view-roster .roster-grid {grid-template-columns:minmax(0,1fr);gap:10px;}
+ #view-roster .roster-player-card {padding:15px 16px;}
+ #view-roster .roster-player-top {margin-bottom:11px;}
+ #view-roster .roster-player-center {padding-bottom:13px;}
+ #view-roster .roster-player-stats {padding-top:11px;}
+ #view-roster .roster-player-stats strong {font-size:18px;}
+ #view-roster .roster-profile-top-meta {font-size:8px;letter-spacing:.07em;text-align:right;}
+ #view-roster .roster-profile-layout {gap:14px;}
+ #view-roster .roster-profile-side {display:block;}
+ #view-roster .roster-profile-hero {min-height:340px;border-radius:16px 16px 11px 11px;padding:20px;}
+ #view-roster .roster-profile-name {font-size:37px;}
+ #view-roster .roster-avatar-large {width:135px;height:135px;}
+ #view-roster .roster-biography {margin-top:10px;padding:17px;}
+ #view-roster .roster-profile-title {margin-top:8px;margin-bottom:15px;}
+ #view-roster .roster-profile-title h2{font-size:28px;}
+ #view-roster .roster-profile-kpis {grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+ #view-roster .roster-kpi {padding:15px 12px;}
+ #view-roster .roster-kpi>strong {font-size:30px;}
+ #view-roster .roster-profile-stats-grid {grid-template-columns:1fr;gap:10px;}
+ #view-roster .roster-stats-section {margin-top:20px;}
+ #view-roster .roster-stat-panel {padding:15px;}
+}
+@media(max-width:370px) {
+ #view-roster .roster-heading-pill {display:none;}
+ #view-roster .roster-profile-top-meta {display:none;}
+ #view-roster .roster-profile-name {font-size:33px;}
+}
+@media(prefers-reduced-motion:reduce){#view-roster .roster-player-card {transition:none}}
+
+/* V3 Beta roster directory — list-only overview. Profiles retain all season statistics. */
+#view-roster .roster-section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:0 0 17px}
+#view-roster .roster-section-head h2{margin:5px 0 0;color:#f2f5ff;font-size:27px;letter-spacing:-.045em;line-height:1.1}
+#view-roster .roster-section-head h2 span{color:#a68aff}
+#view-roster .roster-section-kicker{color:#6ee6d1;font-weight:850;font-size:10px;letter-spacing:.16em}
+#view-roster .roster-section-head p{color:#91a3c3;font-size:11px;line-height:1.45;text-align:right}
+#view-roster .roster-directory-simple{margin-top:8px}
+#view-roster .roster-directory-simple .roster-controls{margin-bottom:18px}
+#view-roster .roster-name-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch}
+#view-roster .roster-name-panel{min-width:0;background:linear-gradient(172deg,#231633,#1a1934 68%,#171b30);border:1px solid #453451;border-top:2px solid #a68aff;border-radius:15px;overflow:hidden;padding:8px 9px}
+#view-roster .roster-name-panel-2{border-top-color:#45d9c1}
+#view-roster .roster-name-panel-3{border-top-color:#6bbcff}
+#view-roster .roster-name-row{display:flex;width:100%;min-width:0;align-items:center;gap:12px;background:transparent;border:0;border-bottom:1px solid #ffffff13;color:#f4f5ff;text-align:left;padding:14px 10px;cursor:pointer;min-height:76px;border-radius:7px;transition:background .15s ease}
+#view-roster .roster-name-row:last-child{border-bottom:0}
+#view-roster .roster-name-row:hover{background:#ffffff10}
+#view-roster .roster-name-row:focus-visible{outline:2px solid #bba8ff;outline-offset:-2px}
+#view-roster .roster-name-row .roster-avatar{width:42px;height:42px;flex:0 0 42px;border-radius:12px;box-shadow:none}
+#view-roster .roster-name-row .roster-avatar::before{inset:3px;border-radius:9px}
+#view-roster .roster-name-row .roster-avatar>span{font-size:13px}
+#view-roster .roster-name-identity{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+#view-roster .roster-name-identity strong{font-size:14px;font-weight:750;letter-spacing:-.015em;line-height:1.2;color:#f5f4ff;overflow-wrap:anywhere}
+#view-roster .roster-name-identity small{font-size:10px;color:#a2a4c2}
+#view-roster .roster-name-arrow{color:#a897e6;font-size:23px;line-height:1;flex:0 0 auto;padding:0 3px}
+@media(max-width:1100px){#view-roster .roster-name-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){
+  #view-roster .roster-name-grid{grid-template-columns:minmax(0,1fr);gap:11px}
+  #view-roster .roster-name-panel{padding:4px 8px}
+  #view-roster .roster-name-row{min-height:68px;padding:11px 9px}
+  #view-roster .roster-section-head{align-items:flex-start;margin-bottom:15px}
+  #view-roster .roster-section-head h2{font-size:24px}
+  #view-roster .roster-section-head p{font-size:10px;max-width:155px}
+  #view-roster .roster-directory-simple .roster-controls{margin-bottom:13px}
+}
+@media(max-width:370px){#view-roster .roster-section-head p{display:none}}
+@media(prefers-reduced-motion:reduce){#view-roster .roster-name-row{transition:none}}
