@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Indoor Rating Studio — an offline indoor soccer match rating calculator, full match reports and portable backups.">
+  <title>Indoor Rating Studio | V3 Beta</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
+  <meta name="theme-color" content="#080e1c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Indoor Studio">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div><strong>INDOOR<span class="brand-alt">/</span>STUDIO</strong><small>MATCH INTELLIGENCE · V3 BETA</small></div>
+      </div>
+      <div class="side-label">WORKSPACE</div>
+      <nav class="side-nav">
+        <button class="nav-link selected" data-view="studio" type="button"><span class="nav-icon">◈</span><span>Match studio</span><span class="nav-index">01</span></button>
+        <button class="nav-link" data-view="library" type="button"><span class="nav-icon">▤</span><span>Match library</span><span class="nav-index">02</span></button>
+        <button class="nav-link" data-view="analytics" type="button"><span class="nav-icon">▥</span><span>Analytics</span><span class="nav-index">03</span></button>
+        <button class="nav-link" data-view="data" type="button"><span class="nav-icon">⚙</span><span>Data & settings</span><span class="nav-index">04</span></button>
+        <button class="nav-link" data-view="methodology" type="button"><span class="nav-icon">◧</span><span>Methodology</span><span class="nav-index">05</span></button>
+      </nav>
+      <div class="side-spacer"></div>
+      <div class="sidebar-foot">
+        <div class="offline-pill"><span class="status-dot"></span>LOCAL APPLICATION</div>
+        <div class="sidebar-foot-title">Own your data.</div>
+        <p>Your stats stay on your device. Export a backup anytime.</p>
+        <button class="btn btn-secondary btn-full" type="button" id="sideExport">Export backup <span>↗</span></button>
+      </div>
+    </aside>
+
+    <div class="main-panel">
+      <header class="topbar">
+        <div class="topbar-left"><span class="topbar-signal"></span> 5 + GK <span class="topbar-divider">/</span> 25-minute halves <span class="topbar-divider">/</span> Unlimited subs</div>
+        <div class="topbar-right"><span id="saveState" class="save-state">● Locally saved</span><div class="avatar">IR</div></div>
+      </header>
+
+      <main>
+        <section id="view-studio" class="view active" aria-label="Match studio">
+          <div class="page-heading"><div><div class="eyebrow">THE PERFORMANCE LAB <span class="eyebrow-line"></span> V3 BETA</div><h1>Match <em>studio.</em></h1><p>Every contribution counts. Track the details, own the result.</p></div><div class="heading-actions"><button type="button" class="btn btn-secondary" id="newMatch">＋ New match</button><button type="button" class="btn btn-primary" id="saveMatchTop">Save match <span>↗</span></button></div></div>
+
+          <section class="score-hero" aria-label="Live performance score">
+            <div class="hero-glow glow-a"></div><div class="hero-glow glow-b"></div>
+            <div class="hero-left"><div class="hero-tag"><span class="live-dot"></span> LIVE RATING ENGINE</div><h2 id="heroName">Player<br><span>performance.</span></h2><div class="hero-info"><span id="heroPosition">MIDFIELDER</span><span class="hero-separator"></span><span id="heroOpponent">ADD YOUR OPPONENT</span></div><div class="hero-bottom"><span class="hero-key">MATCH RATING</span><div class="rating-gradient-bar"><span id="ratingProgressFill"></span></div><div class="hero-scale"><span>3.0</span><span>6.5 BASE</span><span>10.0</span></div></div></div>
+            <div class="hero-right"><div class="rating-dial" id="ratingDial"><div class="rating-core"><span class="dial-label">LIVE RATING</span><span class="dial-number" id="ratingNumber">6.5</span><span class="dial-grade" id="ratingGrade">AVERAGE</span></div></div><div class="dial-change" id="ratingChange">+0.00 from base</div></div>
+          </section>
+
+          <div class="quick-kpis">
+            <div class="mini-kpi"><div class="mini-kpi-icon coral">◎</div><div><div class="mini-kpi-label">GOAL CONTRIBUTIONS</div><strong id="kpiGA">0</strong><span id="kpiGADetail">0 goals · 0 assists</span></div></div>
+            <div class="mini-kpi"><div class="mini-kpi-icon lilac">↗</div><div><div class="mini-kpi-label">PASS COMPLETION</div><strong id="kpiPass">—</strong><span id="kpiPassDetail">No passes logged</span><div class="kpi-progress" aria-hidden="true"><span id="kpiPassFill"></span></div></div></div>
+            <div class="mini-kpi"><div class="mini-kpi-icon coral">◎</div><div><div class="mini-kpi-label">SHOT ACCURACY</div><strong id="kpiShot">—</strong><span id="kpiShotDetail">No shots logged</span><div class="kpi-progress" aria-hidden="true"><span id="kpiShotFill"></span></div></div></div>
+            <div class="mini-kpi"><div class="mini-kpi-icon mint">◉</div><div><div class="mini-kpi-label">DRIBBLE COMPLETION</div><strong id="kpiDribble">—</strong><span id="kpiDribbleDetail">No dribbles logged</span><div class="kpi-progress" aria-hidden="true"><span id="kpiDribbleFill"></span></div></div></div>
+            <div class="mini-kpi"><div class="mini-kpi-icon blue">⌁</div><div><div class="mini-kpi-label">POSSESSION LOST</div><strong id="kpiLost">0</strong><span id="kpiLostDetail">Calculated automatically</span></div></div>
+          </div>
+
+          <div class="workspace-grid">
+            <div class="workspace-main">
+              <section class="surface match-details"><div class="section-header"><div><div class="section-eyebrow">01 / MATCH DETAILS</div><h3>Match setup</h3></div><span class="header-aside">Your player + game</span></div>
+                <div class="field-grid">
+                  <label class="field"><span>Player name <b>*</b></span><input id="player" maxlength="90" type="text" value="Zava" placeholder="Player name" autocomplete="off"></label>
+                  <label class="field"><span>Team name</span><input id="team" maxlength="90" type="text" value="Northland Nomads" placeholder="Your team" autocomplete="off"></label>
+                  <label class="field"><span>Opponent</span><input id="opponent" maxlength="90" type="text" placeholder="Who did you play?" autocomplete="off"></label>
+                  <label class="field"><span>Match date</span><input id="date" type="date"></label>
+                  <label class="field"><span>Position</span><select id="position"><option value="forward">Forward</option><option value="midfielder" selected>Midfielder</option><option value="defender">Defender</option><option value="keeper">Goalkeeper</option><option value="mixed">Mixed positions</option></select></label>
+                  <label class="field"><span>Minutes played</span><div class="suffix-input"><input id="minutes" type="number" min="0" max="50" step="1" value="25"><span>/ 50</span></div></label>
+                  <label class="field field-span"><span>Result</span><select id="result"><option value="none">Not recorded</option><option value="win">Win</option><option value="draw">Draw</option><option value="loss">Loss</option></select></label>
+                </div>
+                <div id="mixedPositionPanel" class="mixed-position-panel" hidden>
+                  <div class="mixed-position-heading"><div><strong>POSITION SPLIT</strong><p>Allocate the percentage of playing time spent in each position. Total must equal 100%. The blended multipliers estimate the player's role across the match.</p></div><span id="mixedPositionTotal" class="mixed-total">100% allocated</span></div>
+                  <div class="mixed-position-grid">
+                    <label class="field"><span>Forward · attack</span><div class="suffix-input"><input type="number" min="0" max="100" step="1" id="split-forward" data-position-share="forward" value="50"><span>%</span></div></label>
+                    <label class="field"><span>Midfielder</span><div class="suffix-input"><input type="number" min="0" max="100" step="1" id="split-midfielder" data-position-share="midfielder" value="0"><span>%</span></div></label>
+                    <label class="field"><span>Defender</span><div class="suffix-input"><input type="number" min="0" max="100" step="1" id="split-defender" data-position-share="defender" value="50"><span>%</span></div></label>
+                    <label class="field"><span>Goalkeeper</span><div class="suffix-input"><input type="number" min="0" max="100" step="1" id="split-keeper" data-position-share="keeper" value="0"><span>%</span></div></label>
+                  </div>
+                  <div class="mixed-position-track" aria-hidden="true"><span id="splitBar-forward"></span><span id="splitBar-midfielder"></span><span id="splitBar-defender"></span><span id="splitBar-keeper"></span></div>
+                  <div id="mixedPositionSummary" class="mixed-position-summary" aria-live="polite"></div>
+                </div>
+                <div class="minutes-track"><div class="minutes-heading"><strong>PLAYTIME PROGRESS</strong><span id="minuteLabel">25 of 50 minutes (50%)</span></div><div class="track"><span id="minuteFill"></span></div></div>
+              </section>
+
+              <section class="surface event-section"><div class="section-header"><div><div class="section-eyebrow">02 / EVENT TRACKING</div><h3>Every action matters<span class="title-point">.</span></h3></div><button type="button" class="btn btn-ghost" id="clearEvents">Reset events ↺</button></div>
+                <p class="section-subtitle">Select a category and use the counters or type values directly. Your rating updates instantly.</p>
+                <div class="event-tabs" id="eventTabs" role="tablist" aria-label="Statistic categories"></div>
+                <div class="event-section-meta"><div><strong id="groupTitle">Attacking</strong><p id="groupSubtitle">Finishing, chance creation and 1v1s</p></div><div class="group-total" id="groupTotal">+0.00 <span>PTS</span></div></div>
+                <div class="event-grid" id="eventGrid"></div>
+                <div id="completionPanel" class="completion-panel" aria-live="polite"></div>
+                <div class="event-foot"><span>ⓘ</span> Key and long passes are subsets of completed passes. Each shot goes in one category: goal, saved/on-target, ordinary miss, blocked attempt, big miss or exceptional miss. Total possession lost includes inaccurate passes, failed dribbles, unsuccessful touches and dispossessions; count each turnover once.</div>
+              </section>
+            </div>
+            <div class="workspace-side">
+              <section class="surface breakdown"><div class="section-header compact"><div><div class="section-eyebrow">LIVE ANALYSIS</div><h3>Score breakdown</h3></div></div><p class="section-subtitle">Contribution to the 6.5 baseline by category.</p><div id="breakdownRows" class="breakdown-rows"></div><div class="breakdown-total"><div><span>NET IMPACT</span><strong id="netImpact">+0.00</strong></div><div><span>RATING</span><strong id="sideRating">6.5</strong></div></div></section>
+              <section class="surface action-panel"><div class="section-eyebrow">03 / FINALIZE</div><h3>Ready to lock it in?</h3><p>Save your match and generate a full event-by-event performance report, including events with zero recorded.</p><button class="btn btn-primary btn-full" id="saveMatch" type="button">Save & view report <span>↗</span></button><button class="btn btn-secondary btn-full" id="previewReport" type="button">Preview all-event report</button><small id="editingNotice">New unsaved performance</small></section>
+              <section class="note-card"><span class="note-star">✳</span><div><strong>Built for the indoor game.</strong><p>5 outfield + keeper, 50-minute matches, unlimited substitutions. Custom weighted scoring — not an official third-party rating.</p></div></section>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-library" class="view" aria-label="Saved match library" hidden>
+          <div class="page-heading"><div><div class="eyebrow">YOUR MATCH ARCHIVE</div><h1>Match <em>library.</em></h1><p>Every performance, saved and ready to review.</p></div><div class="heading-actions"><button class="btn btn-secondary" type="button" id="libraryExportCSV">Export all CSV ↗</button><button class="btn btn-primary" type="button" id="libraryNew">＋ Track a match</button></div></div>
+          <div id="libraryStats" class="library-summary"></div>
+          <section class="surface library-panel"><div class="section-header"><div><div class="section-eyebrow">ALL PERFORMANCES</div><h3>Recorded matches</h3></div><span class="header-aside" id="libraryCount">0 matches</span></div><div class="library-toolbar"><label class="field search-field"><span>SEARCH LIBRARY</span><input id="librarySearch" type="search" placeholder="Search players, teams, opponents..."></label><label class="field sort-field"><span>SORT</span><select id="librarySort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="rating">Highest rating</option><option value="player">Player A–Z</option></select></label></div><div id="libraryList" class="library-list"></div></section>
+        </section>
+
+        <section id="view-analytics" class="view" aria-label="Match analytics" hidden>
+          <div class="page-heading"><div><div class="eyebrow">BEYOND THE FINAL WHISTLE</div><h1>Player <em>analytics.</em></h1><p>Spot trends across your recorded matches.</p></div></div>
+          <div id="analyticsKpis" class="analytics-kpis"></div>
+          <div class="analytics-grid"><section class="surface analytics-chart"><div class="section-header"><div><div class="section-eyebrow">RATING HISTORY</div><h3>Recent performances</h3></div><span class="header-aside">Last 12 matches</span></div><div id="ratingChart" class="rating-chart"></div></section><section class="surface analytics-recent"><div class="section-header"><div><div class="section-eyebrow">FORM GUIDE</div><h3>Top performances</h3></div></div><div id="topPerformances"></div></section></div>
+          <p class="small-footnote">Analysis is based on the saved matches currently in this browser. Import a backup to bring back exported history.</p>
+        </section>
+
+        <section id="view-data" class="view" aria-label="Data management and settings" hidden>
+          <div class="page-heading"><div><div class="eyebrow">CUSTOMIZE YOUR EXPERIENCE</div><h1>Data & <em>settings.</em></h1><p>Keep the records, make the formula yours.</p></div></div>
+          <div class="data-grid"><section class="surface data-card"><div class="data-icon mint">↗</div><div class="section-eyebrow">PORTABLE BACKUPS</div><h3>Export your data.</h3><p>Download a complete JSON backup for importing later, or a spreadsheet-ready CSV with every tracked event.</p><button id="exportJSON" class="btn btn-primary btn-full" type="button">Export complete JSON backup ↗</button><button id="exportCSV" class="btn btn-secondary btn-full" type="button">Export library CSV ↗</button><small>Includes all tracked event counts (even zero), match ratings and event weights.</small></section>
+          <section class="surface data-card"><div class="data-icon lilac">↙</div><div class="section-eyebrow">RESTORE YOUR HISTORY</div><h3>Import performances.</h3><p>Restore a Studio JSON backup or a library CSV previously exported by this app.</p><label class="field"><span>IMPORT MODE</span><select id="importMode"><option value="merge">Merge matches (recommended)</option><option value="replace">Replace entire match library</option></select></label><button id="importButton" class="btn btn-primary btn-full" type="button">Choose JSON / CSV to import ↗</button><input type="file" accept=".json,.csv,application/json,text/csv" id="importFile" hidden><small>Merge matches by ID. Replace overwrites your existing library after confirmation.</small></section></div>
+          <section class="surface weights-panel"><div class="section-header"><div><div class="section-eyebrow">RATING ENGINE</div><h3>Customize the weights<span class="title-point">.</span></h3></div><button id="resetWeights" class="btn btn-secondary" type="button">Restore defaults ↺</button></div><p class="section-subtitle">V3 Beta MASL-informed baseline: most original weights remain proportionally scaled by 0.63636×. Shooting uses the agreed indoor values (goal +0.70, ordinary miss −0.025, blocked attempt 0.00). Position multipliers still apply. Previously saved matches keep their saved weights.</p><div class="weight-header"><span>EVENT</span><span>POINT VALUE</span></div><div id="weightList"></div><div class="settings-note">Rating = 6.5 + sum(event count × event weight × position multiplier), limited to 3.0–10.0. MASL provides scoring frequency benchmarks, not passing/dribbling weights or official player-rating points. These proportional values are a customizable starting model, not MASL or SofaScore ratings.</div></section>
+          <section class="surface data-warning"><div><h3>Storage information</h3><p>For local files opened with <code>file://</code>, browser storage behavior can vary. The app saves locally when permitted, but JSON exports are your portable backup. Use the same browser and file location when reopening.</p></div><span id="storageIndicator" class="storage-tag">Checking browser storage</span></section>
+        </section>
+
+        <section id="view-methodology" class="view" aria-label="Rating methodology and event glossary" hidden>
+          <div class="page-heading method-page-heading"><div><div class="eyebrow">THE RATING FRAMEWORK <span class="eyebrow-line"></span> V3 BETA</div><h1><em>Method</em>ology.</h1><p>How the rating works, where its weights came from, and exactly how to record every event.</p></div><span class="method-count-pill">40 tracked events · 5 categories</span></div>
+          <section class="method-overview" aria-label="How weights were established">
+            <div class="method-overview-copy"><span class="section-eyebrow">01 / WEIGHT DEVELOPMENT</span><h2>Built for arena soccer.</h2><p>Indoor Rating Studio starts from an independently chosen event-weight framework. The original outdoor-style goal benchmark was <strong>+1.10</strong>; we selected <strong>+0.70</strong> for this 5+GK format. That gives a <strong>0.63636× multiplier</strong> (a 36.36% reduction), applied to most original event weights to preserve their relative priorities.</p><p>For V3 Beta, the shooting events were then adjusted separately: goals <strong>+0.70</strong>, saved/on-target shots <strong>+0.075</strong>, regular misses <strong>−0.025</strong>, blocked attempts <strong>0</strong>, big misses <strong>−0.230</strong>, and exceptional misses <strong>−0.300</strong>. Position factors still affect each category; mixed-role performances use a playing-time-weighted average.</p></div>
+            <div class="method-reference-card"><span class="method-reference-label">MASL REFERENCE · 2025–26</span><strong>11.98</strong><span class="method-reference-unit">goals per match · both teams</span><div class="method-reference-separator"></div><div class="method-reference-stats"><div><strong>1,150</strong><span>regular-season goals</span></div><div><strong>96</strong><span>regular-season matches</span></div></div><p>MASL figures help check arena scoring frequency. The league does <strong>not</strong> publish the individual rating weights used here, and public MASL tracking does not cover this entire 40-event glossary.</p><a href="https://digitalshift-assets.sfo2.cdn.digitaloceanspaces.com/pw/52a4447e-3bb2-40af-b051-2d68f227347e/f-f4ff4441-85aa-40ac-a334-3db4bdea1c36/MASL%20STAT%20PACK%20419.pdf" target="_blank" rel="noopener noreferrer">Official MASL statistics ↗</a><a href="https://www.maslsoccer.com/news/around-the-league-awards-season" target="_blank" rel="noopener noreferrer">MASL analytics context ↗</a></div>
+          </section>
+          <div class="method-triad"><div class="method-fact"><span>BASE RATING</span><strong>6.5</strong><small>Before tracked events</small></div><div class="method-fact"><span>INDOOR MULTIPLIER</span><strong>0.636×</strong><small>Starting proportional scale</small></div><div class="method-fact"><span>RATING RANGE</span><strong>3–10</strong><small>Final result is capped</small></div></div>
+          <section class="surface method-formula"><div class="section-header"><div><div class="section-eyebrow">02 / SCORING FORMULA</div><h3>How the score is calculated</h3></div></div><div class="formula-display">6.5 + Σ (event count × event weight × position factor)</div><p>Points are summed for every recorded event, adjusted by the player's position (or weighted mix of positions), then limited to 3.0–10.0 and displayed to one decimal place. Minutes played are tracked but <strong>do not automatically normalize rating points</strong>. Score contributions can stack for distinct accomplishments, such as a completed pass that is also an assist. The same turnover or shot attempt must not be entered twice as different outcomes.</p><div id="methodFactorGrid" class="factor-grid"></div><p class="method-small-note">These position factors are design choices, not published MASL position ratings. For mixed roles, enter percentages totaling 100%; each category factor is the time-weighted average of the listed positions. Because individual events are not tagged by position, the blended factor is an estimate. A saved report retains its original weights; the event glossary below shows the <strong>current editable weights</strong> for new calculations.</p></section>
+          <section class="method-glossary" aria-label="Definitions of every tracked event"><div class="section-header method-glossary-heading"><div><div class="section-eyebrow">03 / COMPLETE EVENT GLOSSARY</div><h3>Every statistic, defined<span class="title-point">.</span></h3><p class="section-subtitle">Select a group to see what each metric means, when to count it, and what to avoid.</p></div><span id="methodMatches" class="method-count-pill">40 definitions</span></div><div class="method-toolbar"><label class="field"><span>FIND AN EVENT</span><input type="search" id="methodSearch" placeholder="Search goals, dispossessed, tackles…" autocomplete="off"></label><div class="method-toolbar-buttons"><button type="button" class="btn btn-secondary" id="methodExpand">Expand all</button><button type="button" class="btn btn-secondary" id="methodCollapse">Collapse all</button></div></div><div id="methodGroups" class="method-groups"></div></section>
+          <section class="surface method-kpis"><div class="section-header"><div><div class="section-eyebrow">04 / AUTOMATIC METRICS</div><h3>What the dashboard calculates</h3></div></div><div class="derived-grid" id="methodDerived"></div></section>
+          <div class="method-disclaimer"><span>ⓘ</span><p><strong>Model status: V3 Beta.</strong> This is an independent, adjustable, MASL-informed arena soccer model, not an official MASL, SofaScore or FotMob match rating. MASL uses 60-minute stop-clock matches; this application targets 50-minute recreational matches. Recalibrate with complete local observations before treating ratings as validated comparisons.</p></div>
+        </section>
+      </main>
+      <footer class="app-footer"><span>INDOOR / STUDIO <span>© 2026</span></span><span>V3 BETA <i>✳</i> OFFLINE FIRST</span></footer>
+    </div>
+  </div>
+
+  <div id="reportModal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="reportHeading">
+    <div class="report-window"><div class="report-toolbar no-print"><div><span class="section-eyebrow">MATCH REPORT</span><strong id="reportHeading">Full performance report</strong></div><div class="report-tools"><button id="reportJSON" class="btn btn-secondary" type="button">JSON ↗</button><button id="reportCSV" class="btn btn-secondary" type="button">CSV ↗</button><button id="reportPrint" class="btn btn-primary" type="button">Print / PDF ↗</button><button id="reportClose" class="close-btn" type="button" aria-label="Close report">×</button></div></div><div id="reportBody" class="report-body"></div></div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script src="ratings.js"></script>
+  <script src="storage.js"></script>
+  <script src="script.js"></script>
+  <script src="pwa.js" defer></script>
+</body>
+</html>
