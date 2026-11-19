@@ -109,8 +109,7 @@
     const result = E.calculate(m.stats, m.position, m.weights, m.positionShares);
     const rows = [['Indoor Rating Studio','Match report'],['Player',m.player],['Team',m.team],['Opponent',m.opponent],['Date',m.date],['Position',m.position],['Position allocation',m.position==='mixed'?E.POSITION_KEYS.filter(k=>m.positionShares[k]>0).map(k=>`${k}: ${m.positionShares[k]}%`).join(' / '):'Single position'],['Minutes',m.minutes],['Result',m.result],['Match rating',result.rating],['Pass completion (%)',result.passAccuracy===null?'':result.passAccuracy],['Passes completed',m.stats.passGood],['Pass attempts',result.passAttempts],['Shot accuracy (%)',result.shotAccuracy===null?'':result.shotAccuracy],['Total shots',result.shotAttempts],['Shots on target',result.shotsOnTarget],['Shots off target',result.shotsOffTarget],['Dribble completion (%)',result.dribbleAccuracy===null?'':result.dribbleAccuracy],['Dribbles completed',m.stats.dribbleWon],['Dribble attempts',result.dribbleAttempts],['Total possession lost',result.totalPossessionLost],[],['Category','Event','Count','Base weight','Position multiplier','Rating impact']];
     E.GROUPS.forEach(group => {
-      const factor = result.factors[group.id];
-      group.events.forEach(([key,label]) => rows.push([group.title,label,m.stats[key],m.weights[key],factor,Number(result.impact[key].toFixed(4))]));
+      group.events.forEach(([key,label]) => rows.push([group.title,label,m.stats[key],m.weights[key],result.factors[E.BY_KEY[key].factorGroup],Number(result.impact[key].toFixed(4))]));
       rows.push([group.title+' subtotal','','','','',Number(result.groups.find(g=>g.id===group.id).subtotal.toFixed(4))]);
     });
     rows.push(['Total event impact','','','','',Number(result.net.toFixed(4))]);

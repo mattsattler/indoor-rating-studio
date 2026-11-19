@@ -25,8 +25,10 @@
     weightMultiplier: 0.70 / 1.10,
     methodology: 'MASL supplies scoring frequency, not proprietary event weights. Apply proportional scaling to the earlier event weights; set goal to +0.70 by agreement. Recalibrate against local match data.'
   });
+  // Display categories are independent of event-specific legacy position factors.
+  // Moving an event here must not change its numeric rating contribution.
   const GROUPS = [
-    { id: 'attack', title: 'Attacking', short: 'Attack', tint: '#ff7d89', description: 'Finishing, chance creation and 1v1s', events: [
+    { id: 'attack', title: 'Attacking', short: 'Attack', tint: '#ff7d89', description: 'Finishing, shooting and chance creation', events: [
       ['goals', 'Goals', 0.7, 'Goals scored'],
       ['assists', 'Assists', 0.47727, 'Final pass leading directly to a goal'],
       ['shotsOn', 'Shots on target (saved)', 0.075, 'Shots on goal stopped by the goalkeeper, excluding goals. Do not record the same shot as a goal.'],
@@ -34,19 +36,21 @@
       ['shotBlocked', 'Shots blocked (attempts)', 0, 'Your attempts blocked by opposing defenders. Not the same as defensive blocked shots.'],
       ['bigChances', 'Big chances created', 0.15273, 'Clear scoring opportunities created'],
       ['bigMisses', 'Big chances missed', -0.23, 'A clear, high-quality chance sent off target. Count here INSTEAD of Shots off target.'],
-      ['exceptionalMiss', 'Exceptional chances missed', -0.3, 'A very high-quality open chance sent off target. Count here INSTEAD of the other missed-shot categories.'],
-      ['dribbleWon', 'Dribbles completed', 0.09545, 'Successful take-ons. Count each completed dribble once.'],
-      ['dribbleLost', 'Unsuccessful dribbles', -0.07636, 'Failed take-ons; included automatically in total possession lost']
+      ['exceptionalMiss', 'Exceptional chances missed', -0.3, 'A very high-quality open chance sent off target. Count here INSTEAD of the other missed-shot categories.']
     ]},
-    { id: 'passing', title: 'Passing', short: 'Passing', tint: '#8e8bff', description: 'Passing accuracy, creation and distribution', events: [
-      ['passGood', 'Passes completed', 0.00955, 'Successful passes. Includes key passes, accurate long passes and through balls.'],
-      ['passBad', 'Inaccurate passes', -0.02864, 'Uncompleted passes; included automatically in total possession lost'],
-      ['keyPass', 'Key passes', 0.12727, 'Passes immediately leading to a shot; already included in completed passes'],
-      ['longGood', 'Long passes completed', 0.03818, 'Successful long passes; already included in passes completed'],
-      ['through', 'Successful through balls', 0.08909, 'Through balls received by teammates; already included in completed passes'],
-      ['crossGood', 'Accurate crosses', 0.05091, 'Subset of accurate passes']
+    { id: 'possession', title: 'Possession', short: 'Possession', tint: '#8e8bff', description: 'Passing, dribbling and retaining possession', events: [
+      ['passGood', 'Passes completed', 0.00955, 'Successful passes. Includes key passes, accurate long passes and through balls.', 'passing'],
+      ['passBad', 'Inaccurate passes', -0.02864, 'Uncompleted passes; included automatically in total possession lost', 'passing'],
+      ['keyPass', 'Key passes', 0.12727, 'Passes immediately leading to a shot; already included in completed passes', 'passing'],
+      ['longGood', 'Long passes completed', 0.03818, 'Successful long passes; already included in passes completed', 'passing'],
+      ['through', 'Successful through balls', 0.08909, 'Through balls received by teammates; already included in completed passes', 'passing'],
+      ['crossGood', 'Accurate crosses', 0.05091, 'Subset of accurate passes', 'passing'],
+      ['dribbleWon', 'Dribbles completed', 0.09545, 'Successful take-ons. Count each completed dribble once.', 'attack'],
+      ['dribbleLost', 'Unsuccessful dribbles', -0.07636, 'Failed take-ons; included automatically in total possession lost', 'attack'],
+      ['posLost', 'Dispossessed', -0.08909, 'An opponent takes the ball directly from you while you control it. Do not also record that turnover as a failed dribble, inaccurate pass or unsuccessful touch.', 'discipline'],
+      ['badTouch', 'Unsuccessful touches', -0.06364, 'Turnovers caused by a poor first touch; do not also count as other possession lost', 'discipline']
     ]},
-    { id: 'defense', title: 'Defending', short: 'Defense', tint: '#39d5bd', description: 'Winning and protecting possession', events: [
+    { id: 'defense', title: 'Defending', short: 'Defense', tint: '#39d5bd', description: 'Tackles, interventions and defensive mistakes', events: [
       ['tackles', 'Successful tackles', 0.10818, 'Tackles that stop or dispossess an opponent'],
       ['tackleLost', 'Failed tackles', -0.035, 'Unsuccessful tackle attempts'],
       ['intercepts', 'Interceptions', 0.09545, 'Cutting out an opponent’s pass'],
@@ -55,19 +59,11 @@
       ['duelsWon', 'Duels won', 0.04136, 'All contested duels won'],
       ['duelsLost', 'Duels lost', -0.04773, 'All contested duels lost'],
       ['recoveries', 'Ball recoveries', 0.02864, 'Regaining an unpossessed ball'],
-      ['dribbledPast', 'Dribbled past', -0.08273, 'Beaten by an opposing dribbler']
+      ['dribbledPast', 'Dribbled past', -0.08273, 'Beaten by an opposing dribbler'],
+      ['errors', 'Errors leading to goal', -0.73182, 'Non-goalkeeper mistakes leading to opponent goals', 'discipline'],
+      ['ownGoals', 'Own goals', -0.7, 'Goals scored into own net', 'discipline']
     ]},
-    { id: 'discipline', title: 'Possession & discipline', short: 'Other', tint: '#ffd36d', description: 'Care of the ball, fouls and mistakes', events: [
-      ['posLost', 'Dispossessed', -0.08909, 'An opponent takes the ball directly from you while you control it. Do not also record that turnover as a failed dribble, inaccurate pass or unsuccessful touch.'],
-      ['badTouch', 'Unsuccessful touches', -0.06364, 'Turnovers caused by a poor first touch; do not also count as other possession lost'],
-      ['foulsWon', 'Fouls won', 0.04455, 'Fouls drawn from opponents'],
-      ['fouls', 'Fouls committed', -0.07, 'Fouls committed by player'],
-      ['yellow', 'Yellow cards', -0.25455, 'Cautions received'],
-      ['red', 'Red cards', -0.89091, 'Send-offs received'],
-      ['errors', 'Errors leading to goal', -0.73182, 'Non-goalkeeper mistakes leading to opponent goals'],
-      ['ownGoals', 'Own goals', -0.7, 'Goals scored into own net']
-    ]},
-    { id: 'goalkeeping', title: 'Goalkeeping', short: 'Keeper', tint: '#6bb7ff', description: 'Shot-stopping, control and distribution', events: [
+    { id: 'goalkeeping', title: 'Goalkeeping', short: 'GK', tint: '#6bb7ff', description: 'Shot-stopping, control and distribution', events: [
       ['saves', 'Saves', 0.10818, 'Ordinary saves'],
       ['greatSaves', 'Exceptional saves', 0.17182, 'Additional bonus for outstanding saves; can overlap with saves'],
       ['conceded', 'Goals conceded', -0.12727, 'Opposing goals conceded while on court'],
@@ -75,10 +71,16 @@
       ['penSaved', 'Penalties saved', 0.7, 'Penalty shots saved'],
       ['claims', 'Successful claims', 0.06364, 'Crosses or dangerous balls securely claimed'],
       ['gkErrors', 'GK errors leading to goal', -0.73182, 'Goalkeeper mistakes leading to goals']
+    ]},
+    { id: 'other', title: 'Other', short: 'Other', tint: '#ffd36d', description: 'Fouls and disciplinary actions', events: [
+      ['foulsWon', 'Fouls won', 0.04455, 'Fouls drawn from opponents', 'discipline'],
+      ['fouls', 'Fouls committed', -0.07, 'Fouls committed by player', 'discipline'],
+      ['yellow', 'Yellow cards', -0.25455, 'Cautions received', 'discipline'],
+      ['red', 'Red cards', -0.89091, 'Send-offs received', 'discipline']
     ]}
   ];
   // Store the final V3 Beta indoor values directly; no runtime re-scaling.
-  const EVENTS = GROUPS.flatMap(g => g.events.map(([key, label, weight, hint]) => ({key, label, weight, hint, group: g.id, tint: g.tint})));
+  const EVENTS = GROUPS.flatMap(g => g.events.map(([key, label, weight, hint, factorGroup]) => ({key, label, weight, hint, group: g.id, factorGroup: factorGroup || g.id, tint: g.tint})));
   const BY_KEY = Object.fromEntries(EVENTS.map(event => [event.key, event]));
   const FACTORS = {
     forward: { attack: 1.12, passing: 1, defense: 0.90, discipline: 1, goalkeeping: 1 },
@@ -126,7 +128,7 @@
     const groups = GROUPS.map(group => {
       let subtotal = 0;
       group.events.forEach(([key]) => {
-        const points = stats[key] * weights[key] * factors[group.id];
+        const points = stats[key] * weights[key] * factors[BY_KEY[key].factorGroup];
         impact[key] = points;
         subtotal += points;
       });

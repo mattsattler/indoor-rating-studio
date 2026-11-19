@@ -13,6 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Indoor Studio">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="roster.css">
   <link rel="stylesheet" href="mobile.css" media="screen and (max-width: 700px)">
 </head>
 <body>
@@ -25,10 +26,11 @@
       <div class="side-label">WORKSPACE</div>
       <nav class="side-nav">
         <button class="nav-link selected" data-view="studio" type="button"><span class="nav-icon">◈</span><span>Match studio</span><span class="nav-index">01</span></button>
-        <button class="nav-link" data-view="library" type="button"><span class="nav-icon">▤</span><span>Match library</span><span class="nav-index">02</span></button>
-        <button class="nav-link" data-view="analytics" type="button"><span class="nav-icon">▥</span><span>Analytics</span><span class="nav-index">03</span></button>
-        <button class="nav-link" data-view="data" type="button"><span class="nav-icon">⚙</span><span>Data & settings</span><span class="nav-index">04</span></button>
-        <button class="nav-link" data-view="methodology" type="button"><span class="nav-icon">◧</span><span>Methodology</span><span class="nav-index">05</span></button>
+        <button class="nav-link" data-view="roster" type="button"><span class="nav-icon">♟</span><span>Roster</span><span class="nav-index">02</span></button>
+        <button class="nav-link" data-view="library" type="button"><span class="nav-icon">▤</span><span>Match library</span><span class="nav-index">03</span></button>
+        <button class="nav-link" data-view="analytics" type="button"><span class="nav-icon">▥</span><span>Analytics</span><span class="nav-index">04</span></button>
+        <button class="nav-link" data-view="data" type="button"><span class="nav-icon">⚙</span><span>Data & settings</span><span class="nav-index">05</span></button>
+        <button class="nav-link" data-view="methodology" type="button"><span class="nav-icon">◧</span><span>Methodology</span><span class="nav-index">06</span></button>
       </nav>
       <div class="side-spacer"></div>
       <div class="sidebar-foot">
@@ -92,7 +94,7 @@
               <section class="surface event-section"><div class="section-header"><div><div class="section-eyebrow">02 / EVENT TRACKING</div><h3>Every action matters<span class="title-point">.</span></h3></div><button type="button" class="btn btn-ghost" id="clearEvents">Reset events ↺</button></div>
                 <p class="section-subtitle">Select a category and use the counters or type values directly. Your rating updates instantly.</p>
                 <div class="event-tabs" id="eventTabs" role="tablist" aria-label="Statistic categories"></div>
-                <div class="event-section-meta"><div><strong id="groupTitle">Attacking</strong><p id="groupSubtitle">Finishing, chance creation and 1v1s</p></div><div class="group-total" id="groupTotal">+0.00 <span>PTS</span></div></div>
+                <div class="event-section-meta"><div><strong id="groupTitle">Attacking</strong><p id="groupSubtitle">Finishing, shooting and chance creation</p></div><div class="group-total" id="groupTotal">+0.00 <span>PTS</span></div></div>
                 <div class="event-grid" id="eventGrid"></div>
                 <div id="completionPanel" class="completion-panel" aria-live="polite"></div>
                 <div class="event-foot"><span>ⓘ</span> Key and long passes are subsets of completed passes. Each shot goes in one category: goal, saved/on-target, ordinary miss, blocked attempt, big miss or exceptional miss. Total possession lost includes inaccurate passes, failed dribbles, unsuccessful touches and dispossessions; count each turnover once.</div>
@@ -104,6 +106,10 @@
               <section class="note-card"><span class="note-star">✳</span><div><strong>Built for the indoor game.</strong><p>5 outfield + keeper, 50-minute matches, unlimited substitutions. Custom weighted scoring — not an official third-party rating.</p></div></section>
             </div>
           </div>
+        </section>
+
+        <section id="view-roster" class="view roster-view" aria-label="Team roster" hidden>
+          <div id="rosterRoot" class="roster-root" aria-live="polite"></div>
         </section>
 
         <section id="view-library" class="view" aria-label="Saved match library" hidden>
@@ -134,7 +140,7 @@
             <div class="method-reference-card"><span class="method-reference-label">MASL REFERENCE · 2025–26</span><strong>11.98</strong><span class="method-reference-unit">goals per match · both teams</span><div class="method-reference-separator"></div><div class="method-reference-stats"><div><strong>1,150</strong><span>regular-season goals</span></div><div><strong>96</strong><span>regular-season matches</span></div></div><p>MASL figures help check arena scoring frequency. The league does <strong>not</strong> publish the individual rating weights used here, and public MASL tracking does not cover this entire 40-event glossary.</p><a href="https://digitalshift-assets.sfo2.cdn.digitaloceanspaces.com/pw/52a4447e-3bb2-40af-b051-2d68f227347e/f-f4ff4441-85aa-40ac-a334-3db4bdea1c36/MASL%20STAT%20PACK%20419.pdf" target="_blank" rel="noopener noreferrer">Official MASL statistics ↗</a><a href="https://www.maslsoccer.com/news/around-the-league-awards-season" target="_blank" rel="noopener noreferrer">MASL analytics context ↗</a></div>
           </section>
           <div class="method-triad"><div class="method-fact"><span>BASE RATING</span><strong>6.5</strong><small>Before tracked events</small></div><div class="method-fact"><span>INDOOR MULTIPLIER</span><strong>0.636×</strong><small>Starting proportional scale</small></div><div class="method-fact"><span>RATING RANGE</span><strong>3–10</strong><small>Final result is capped</small></div></div>
-          <section class="surface method-formula"><div class="section-header"><div><div class="section-eyebrow">02 / SCORING FORMULA</div><h3>How the score is calculated</h3></div></div><div class="formula-display">6.5 + Σ (event count × event weight × position factor)</div><p>Points are summed for every recorded event, adjusted by the player's position (or weighted mix of positions), then limited to 3.0–10.0 and displayed to one decimal place. Minutes played are tracked but <strong>do not automatically normalize rating points</strong>. Score contributions can stack for distinct accomplishments, such as a completed pass that is also an assist. The same turnover or shot attempt must not be entered twice as different outcomes.</p><div id="methodFactorGrid" class="factor-grid"></div><p class="method-small-note">These position factors are design choices, not published MASL position ratings. For mixed roles, enter percentages totaling 100%; each category factor is the time-weighted average of the listed positions. Because individual events are not tagged by position, the blended factor is an estimate. A saved report retains its original weights; the event glossary below shows the <strong>current editable weights</strong> for new calculations.</p></section>
+          <section class="surface method-formula"><div class="section-header"><div><div class="section-eyebrow">02 / SCORING FORMULA</div><h3>How the score is calculated</h3></div></div><div class="formula-display">6.5 + Σ (event count × event weight × position factor)</div><p>Points are summed for every recorded event, adjusted by the player's position (or weighted mix of positions), then limited to 3.0–10.0 and displayed to one decimal place. Minutes played are tracked but <strong>do not automatically normalize rating points</strong>. Score contributions can stack for distinct accomplishments, such as a completed pass that is also an assist. The same turnover or shot attempt must not be entered twice as different outcomes.</p><div id="methodFactorGrid" class="factor-grid"></div><p class="method-small-note">These position factors are design choices, not published MASL position ratings. The columns describe action types, not the five display categories: passes retain the original passing multiplier, dribbles the attacking multiplier, and ball-control errors the original discipline multiplier. For mixed roles, enter percentages totaling 100%; each event factor is a time-weighted average of the listed positions. Because individual events are not tagged by position, the blended factor is an estimate. A saved report retains its original weights; the event glossary below shows the <strong>current editable weights</strong> for new calculations.</p></section>
           <section class="method-glossary" aria-label="Definitions of every tracked event"><div class="section-header method-glossary-heading"><div><div class="section-eyebrow">03 / COMPLETE EVENT GLOSSARY</div><h3>Every statistic, defined<span class="title-point">.</span></h3><p class="section-subtitle">Select a group to see what each metric means, when to count it, and what to avoid.</p></div><span id="methodMatches" class="method-count-pill">40 definitions</span></div><div class="method-toolbar"><label class="field"><span>FIND AN EVENT</span><input type="search" id="methodSearch" placeholder="Search goals, dispossessed, tackles…" autocomplete="off"></label><div class="method-toolbar-buttons"><button type="button" class="btn btn-secondary" id="methodExpand">Expand all</button><button type="button" class="btn btn-secondary" id="methodCollapse">Collapse all</button></div></div><div id="methodGroups" class="method-groups"></div></section>
           <section class="surface method-kpis"><div class="section-header"><div><div class="section-eyebrow">04 / AUTOMATIC METRICS</div><h3>What the dashboard calculates</h3></div></div><div class="derived-grid" id="methodDerived"></div></section>
           <div class="method-disclaimer"><span>ⓘ</span><p><strong>Model status: V3 Beta.</strong> This is an independent, adjustable, MASL-informed arena soccer model, not an official MASL, SofaScore or FotMob match rating. MASL uses 60-minute stop-clock matches; this application targets 50-minute recreational matches. Recalibrate with complete local observations before treating ratings as validated comparisons.</p></div>
@@ -150,6 +156,7 @@
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <script src="ratings.js"></script>
   <script src="storage.js"></script>
+  <script src="roster.js"></script>
   <script src="script.js"></script>
   <script src="pwa.js" defer></script>
   <script src="mobile-nav.js" defer></script>

@@ -88,19 +88,24 @@
   }
   function eventRow(key,label,hint,group) {
     const val=state.draft.stats[key];const weight=state.weights[key];
-    const impact=val*weight*E.positionFactors(state.draft.position,state.draft.positionShares)[group.id];
+    const impact=val*weight*E.positionFactors(state.draft.position,state.draft.positionShares)[E.BY_KEY[key].factorGroup];
     return `<div class="event-item" title="${escapeHTML(hint)}"><div class="event-label"><strong>${escapeHTML(label)}</strong><small>${weight>=0?'+':''}${weight.toFixed(3)} / event${val ? ` · ${nfmt(impact)} impact` : ''}</small></div><div class="counter"><button type="button" aria-label="Subtract ${escapeHTML(label)}" data-minus="${key}">−</button><input type="number" min="0" max="99999" step="1" inputmode="numeric" aria-label="${escapeHTML(label)} count" data-count="${key}" value="${val}"><button type="button" class="plus" aria-label="Add ${escapeHTML(label)}" data-plus="${key}">+</button></div></div>`;
   }
   function renderEvents() {
     const group=E.GROUPS.find(g=>g.id===activeGroup);
     $('groupTitle').textContent=group.title;
     $('groupSubtitle').textContent=group.description;
-    if(activeGroup==='passing') {
-      // Keep legacy through-ball and crossing data accessible without crowding the four core passing controls.
-      const core=group.events.slice(0,4);
-      const optional=group.events.slice(4);
-      $('eventGrid').innerHTML=core.map(([key,label,weight,hint])=>eventRow(key,label,hint,group)).join('') +
-        `<details id="extraPassing" class="extra-events" ${advancedPassingOpen?'open':''}><summary>Additional passing events <span>Through balls &amp; crosses</span></summary><div class="extra-events-grid">${optional.map(([key,label,weight,hint])=>eventRow(key,label,hint,group)).join('')}</div></details>`;
+    if (activeGroup==='possession') {
+      // Preserve all passing subtypes and place dribbles + turnovers in Possession.
+      // Passing subtypes stay collapsed, exactly as in the previous release.
+      const countRows=keys=>keys.map(key=>{
+        const event=E.BY_KEY[key];return eventRow(event.key,event.label,event.hint,group);
+      }).join('');
+      $('eventGrid').innerHTML=
+        `<div class="event-subhead">PASSING</div>` + countRows(['passGood','passBad','keyPass','longGood']) +
+        `<details id="extraPassing" class="extra-events" ${advancedPassingOpen?'open':''}><summary>Additional passing events <span>Through balls &amp; crosses</span></summary><div class="extra-events-grid">${countRows(['through','crossGood'])}</div></details>` +
+        `<div class="event-subhead">DRIBBLING</div>` + countRows(['dribbleWon','dribbleLost']) +
+        `<div class="event-subhead">BALL CONTROL</div>` + countRows(['posLost','badTouch']);
     } else {
       $('eventGrid').innerHTML=group.events.map(([key,label,weight,hint])=>eventRow(key,label,hint,group)).join('');
     }
@@ -111,7 +116,7 @@
     const r=result||calculate();
     const el=$('completionPanel');
     // Accuracy and success meters now live in the top dashboard, not a duplicated panel below Attack / Passing.
-    if(activeGroup==='discipline') {
+    if(activeGroup==='possession') {
       el.innerHTML=`<div class="efficiency-heading"><strong>POSSESSION LOST</strong><span>Automatically calculated</span></div><div class="turnover-total"><strong>${r.totalPossessionLost}</strong><span>TOTAL TURNOVERS</span></div><p class="efficiency-note">${r.stats.passBad} inaccurate passes + ${r.stats.dribbleLost} failed dribbles + ${r.stats.badTouch} unsuccessful touches + ${r.stats.posLost} dispossessions. This total is informational, not an extra penalty.</p>`;
     } else el.innerHTML='';
   }
@@ -120,7 +125,7 @@
     for(const [key] of group.events){
       const row=q(`[data-count="${key}"]`);
       if (!row) continue;
-      const impact=state.draft.stats[key]*state.weights[key]*E.positionFactors(state.draft.position,state.draft.positionShares)[group.id];
+      const impact=state.draft.stats[key]*state.weights[key]*E.positionFactors(state.draft.position,state.draft.positionShares)[E.BY_KEY[key].factorGroup];
       row.closest('.event-item').querySelector('small').textContent=`${state.weights[key]>=0?'+':''}${state.weights[key].toFixed(3)} / event${state.draft.stats[key] ? ` · ${nfmt(impact)} impact` : ''}`;
     }
   }
@@ -213,7 +218,7 @@
     const positions=[['Forward','forward'],['Midfielder','midfielder'],['Defender','defender'],['Goalkeeper','keeper']];
     $('methodFactorGrid').innerHTML=`<div class="factor-grid-head"><span>POSITION</span><span>ATTACK</span><span>PASSING</span><span>DEFENSE</span><span>OTHER</span><span>KEEPER</span></div>`+positions.map(([label,pos])=>{
       const f=E.FACTORS[pos];return `<div class="factor-grid-row"><strong>${label}</strong>${['attack','passing','defense','discipline','goalkeeping'].map(k=>`<span class="${f[k]!==1?'factor-accent':''}">${f[k].toFixed(2)}×</span>`).join('')}</div>`;
-    }).join('')+`<div class="factor-grid-row mixed-factor-note"><strong>Mixed positions</strong><span style="grid-column:span 5">Time-weighted average of each position’s multipliers; e.g. 60% forward + 40% defender.</span></div>`;
+    }).join('')+`<div class="factor-grid-row mixed-factor-note"><strong>Mixed positions</strong><span style="grid-column:span 5">Time-weighted average of each position’s original event multipliers; e.g. 60% forward + 40% defender.</span></div>`;
     const derived=[
       ['SHOT ACCURACY','(goals + saved/on-target shots) ÷ all six shot outcomes','Goals and saved/on-target shots count as accurate. Blocked attempts and all three missed-shot categories count in the denominator. This is not goal conversion.','#ff7d89'],
       ['PASS COMPLETION','completed passes ÷ (completed + inaccurate passes)','Key, long, through and cross categories are subsets of completed passes; they do not increase total attempts.','#9585ff'],
@@ -242,10 +247,11 @@
     $('methodMatches').textContent=matched+' definition'+(matched===1?'':'s');
   }
   function showView(view) {
-    if(!['studio','library','analytics','data','methodology'].includes(view))return;
+    if(!['studio','roster','library','analytics','data','methodology'].includes(view))return;
     currentView=view;
     document.querySelectorAll('.view').forEach(el=>{el.hidden=el.id!=='view-'+view;el.classList.toggle('active',!el.hidden);});
     document.querySelectorAll('[data-view]').forEach(btn=>btn.classList.toggle('selected',btn.dataset.view===view));
+    if(view==='roster' && window.RosterView)window.RosterView.render(state.matches);
     if(view==='library')renderLibrary();
     if(view==='analytics')renderAnalytics();
     if(view==='data')renderWeights();
@@ -291,7 +297,8 @@
     const rate=v=>v===null?'—':v+'%';
     const keyMetrics=`<div class="report-efficiency"><div><span>SHOT ACCURACY</span><strong>${rate(r.shotAccuracy)}</strong><small>${r.shotsOnTarget} / ${r.shotAttempts} shots on target</small><div class="report-metric-bar"><i style="width:${r.shotAccuracy||0}%;background:#ff7d89"></i></div></div><div><span>PASS COMPLETION</span><strong>${rate(r.passAccuracy)}</strong><small>${r.stats.passGood} / ${r.passAttempts} passes</small><div class="report-metric-bar"><i style="width:${r.passAccuracy||0}%;background:#7667df"></i></div></div><div><span>DRIBBLE COMPLETION</span><strong>${rate(r.dribbleAccuracy)}</strong><small>${r.stats.dribbleWon} / ${r.dribbleAttempts} dribbles</small><div class="report-metric-bar"><i style="width:${r.dribbleAccuracy||0}%;background:#14a887"></i></div></div><div><span>POSSESSION LOST</span><strong>${r.totalPossessionLost}</strong><small>All recorded turnover causes</small></div></div>`;
     const sections=E.GROUPS.map(g=>{
-      const factor=r.factors[g.id];const rowData=g.events.map(([key,label])=>{
+      const rowData=g.events.map(([key,label])=>{
+        const factor=r.factors[E.BY_KEY[key].factorGroup];
         const impact=r.impact[key];
         return `<tr><td>${escapeHTML(label)}</td><td class="${m.stats[key]===0?'zero':''}">${m.stats[key]}</td><td>${nfmt(m.weights[key],3)}</td><td>${factor.toFixed(3)}×</td><td class="${impact>0?'plus':impact<0?'minus':'zero'}">${nfmt(impact,3)}</td></tr>`;
       }).join('');
