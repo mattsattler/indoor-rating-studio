@@ -1,155 +1,160 @@
-/* Indoor Rating Studio — approved red/white roster concept.
-   Scoped to the roster route. Other app views, event weights and reports are unchanged. */
+/* Indoor Rating Studio — V3 Beta / refined Roster presentation.
+   Presentation layer only: no event weights, player records or match reports changed.
+   Overrides older roster.css selectors, including the obsolete dark column frames. */
 
-/* Desktop identity and navigation */
 .la-side-brand,.la-side-team{display:none}
+
+/* The rest of the app deliberately keeps its established dark theme. */
 @media(min-width:701px){
-  body:has(#view-roster.active){background:#f9fafc}
-  body:has(#view-roster.active) .sidebar{width:272px;padding:28px 15px 22px;background:linear-gradient(160deg,#15203a 0%,#121b30 72%,#101a2e 100%);border-right:1px solid #27344a}
+  body:has(#view-roster.active) .sidebar{width:254px;padding:27px 16px 20px;background:#111a2b;border-color:#273246}
   body:has(#view-roster.active) .sidebar .brand{display:none}
-  body:has(#view-roster.active) .la-side-brand{display:grid;grid-template-columns:44px 1fr;grid-template-rows:auto auto;gap:0 12px;align-items:center;padding:6px 12px 27px;margin-bottom:26px;border-bottom:1px solid #ffffff23}
-  .la-side-brand-logo{grid-row:span 2;width:44px;height:44px;border-radius:10px;display:flex;gap:5px;justify-content:center;align-items:center;background:#f7f9ff}
-  .la-side-brand-logo i{display:block;width:5px;height:27px;border-radius:3px;background:#182641;transform:skew(-25deg)}
-  .la-side-brand-logo i+ i{height:20px}
-  .la-side-brand strong{font-size:17px;line-height:1.05;letter-spacing:-.035em;color:#fff;font-weight:850}
-  .la-side-brand small{grid-column:2;display:block;margin-top:4px;color:#a5afc4;letter-spacing:.14em;font-size:8px;font-weight:800}
-  body:has(#view-roster.active) .la-side-team{display:flex;gap:12px;align-items:center;margin:0 9px 30px;padding-bottom:30px;border-bottom:1px solid #ffffff26}
-  .la-team-shield{height:67px;width:55px;flex-shrink:0;clip-path:polygon(50% 0%,94% 12%,94% 70%,50% 100%,6% 70%,6% 12%);background:linear-gradient(150deg,#fc515b 0 36%,#f9fbff 37% 44%,#14213c 45%);padding:5px;filter:drop-shadow(0 4px 10px #0002);display:grid;place-items:center}
-  .la-team-shield span{display:grid;place-items:center;width:38px;height:46px;clip-path:polygon(50% 0%,94% 12%,94% 70%,50% 100%,6% 70%,6% 12%);background:#1b2945;color:#fff;font-size:26px;font-weight:900;font-style:italic}
-  .la-side-team-name{color:#fff;font-size:20px;line-height:1.05;font-weight:850;letter-spacing:-.03em}
+  body:has(#view-roster.active) .la-side-brand{display:grid;grid-template-columns:40px 1fr;grid-template-rows:auto auto;column-gap:12px;align-items:center;margin:0 3px 0;padding:8px 4px 25px;border-bottom:1px solid #ffffff17}
+  body:has(#view-roster.active) .la-side-brand-logo{grid-row:1/3;width:40px;height:40px;display:flex;align-items:center;justify-content:center;gap:5px;background:#f9fafa;border-radius:10px}
+  body:has(#view-roster.active) .la-side-brand-logo i{height:23px;width:5px;border-radius:4px;background:#18243a;transform:skew(-21deg)}
+  body:has(#view-roster.active) .la-side-brand-logo i+i{height:17px}
+  body:has(#view-roster.active) .la-side-brand strong{font-size:14px;font-weight:830;letter-spacing:-.03em;line-height:1.05;color:#fff}
+  body:has(#view-roster.active) .la-side-brand small{grid-column:2;font-size:8px;font-weight:750;letter-spacing:.13em;color:#a5b0c0;margin-top:4px}
+  body:has(#view-roster.active) .la-side-team{display:flex;align-items:center;gap:13px;margin:26px 4px 27px;padding:0 3px 27px;border-bottom:1px solid #ffffff17}
+  body:has(#view-roster.active) .la-team-shield{width:46px;height:56px;clip-path:polygon(50% 0,95% 16%,95% 72%,50% 100%,5% 72%,5% 16%);display:grid;place-items:center;background:#f34852;flex-shrink:0;padding:4px}
+  body:has(#view-roster.active) .la-team-shield span{display:grid;place-items:center;clip-path:polygon(50% 0,95% 16%,95% 72%,50% 100%,5% 72%,5% 16%);background:#18243a;color:#fff;width:100%;height:100%;font-size:22px;font-weight:850;font-style:italic}
+  body:has(#view-roster.active) .la-side-team-name{font-size:17px;line-height:1.1;font-weight:790;letter-spacing:-.04em;color:#f7f9ff}
   body:has(#view-roster.active) .side-label{display:none}
-  body:has(#view-roster.active) .side-nav{gap:6px}
-  body:has(#view-roster.active) .nav-link{color:#d6d9e3;padding:13px 17px;font-size:14px;font-weight:600;border-radius:12px}
-  body:has(#view-roster.active) .nav-link .nav-index{display:none}
-  body:has(#view-roster.active) .nav-link .nav-icon{color:#c6cbd9;font-size:20px}
-  body:has(#view-roster.active) .nav-link:hover{background:#ffffff12;color:#fff}
-  body:has(#view-roster.active) .nav-link.selected{color:#fff;background:#f3444b;border-color:#f3444b;box-shadow:none}
+  body:has(#view-roster.active) .side-nav{gap:5px}
+  body:has(#view-roster.active) .nav-link{padding:11px 13px;border-radius:9px;color:#9eabc0;font-size:12px;font-weight:650;min-height:45px;box-shadow:none;border:1px solid transparent}
+  body:has(#view-roster.active) .nav-icon{color:#788aa2;font-size:19px}
+  body:has(#view-roster.active) .nav-index{display:none}
+  body:has(#view-roster.active) .nav-link:hover{background:#ffffff0a;color:#f4f6fb}
+  body:has(#view-roster.active) .nav-link.selected{background:#f04450;border-color:#f04450;box-shadow:none;color:#fff}
   body:has(#view-roster.active) .nav-link.selected .nav-icon{color:#fff}
-  body:has(#view-roster.active) .sidebar-foot{background:#18243c;border-color:#31405a}
-  body:has(#view-roster.active) .main-panel{background:#fafbfe;color:#101b33}
+  body:has(#view-roster.active) .sidebar-foot{background:#19263c;border:1px solid #324058;border-radius:13px;padding:15px}
+  body:has(#view-roster.active) .main-panel{background:#f8f9fb;color:#121c30}
   body:has(#view-roster.active) .topbar{display:none}
-  body:has(#view-roster.active) .app-footer{background:#fafbfe;color:#818a9c;border-color:#e1e5ec}
-  body:has(#view-roster.active) .app-footer i{color:#f0454d}
+  body:has(#view-roster.active) .app-footer{background:#f8f9fb;color:#8a95a5;border-color:#e9edf2}
+  body:has(#view-roster.active) .app-footer i{color:#ee4551}
 }
 
-/* Roster page background, hero and double-bar mark */
-#view-roster.view{max-width:none;padding:0;min-height:calc(100vh - 80px);background:#fbfbfd;color:#0e1830}
-#view-roster .roster-root{width:100%;max-width:none;margin:0;background:#fbfbfd;color:#0e1830}
-#view-roster .la-roster-banner{height:247px;position:relative;isolation:isolate;display:flex;align-items:center;overflow:hidden;background:linear-gradient(112deg,#fff 8%,#fff8f8 50%,#fff0f0 100%);border-bottom:1px solid #f1edf0}
-#view-roster .la-roster-banner-copy{z-index:2;padding:39px clamp(26px,4vw,65px);border-left:4px solid #f0444f;margin-left:clamp(20px,3.4vw,48px)}
-#view-roster .la-roster-team{font-size:clamp(18px,2vw,26px);font-weight:850;letter-spacing:-.03em;color:#111b32;line-height:1.2}
-#view-roster .la-roster-banner h1{font-size:clamp(53px,5.6vw,83px);line-height:1.06;letter-spacing:-.065em;color:#101a31;font-weight:900;margin:1px 0 1px}
-#view-roster .la-roster-banner p{margin:0;color:#565d6b;font-size:clamp(15px,1.5vw,22px);font-weight:460;letter-spacing:-.01em}
-#view-roster .la-roster-diagonals{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
-#view-roster .la-roster-diagonals::before,#view-roster .la-roster-diagonals::after{content:'';position:absolute;width:230px;height:380px;top:-70px;transform:skewX(-42deg) rotate(0deg);background:linear-gradient(175deg,#ff4b55a6,#ff526069)}
-#view-roster .la-roster-diagonals::before{right:23%}
-#view-roster .la-roster-diagonals::after{right:0;background:linear-gradient(175deg,#ff657339,#ff9e9d19)}
-#view-roster .la-roster-mark{position:absolute;right:clamp(24px,4vw,65px);top:30px;display:flex;gap:10px;transform:skew(-24deg) rotate(2deg);z-index:2}
-#view-roster .la-roster-mark i{display:block;width:17px;height:52px;border-radius:9px;background:#f13e48}
-#view-roster .la-roster-body{padding:35px clamp(24px,3vw,47px) 65px;max-width:1650px;margin:auto}
-#view-roster .roster-directory-simple{margin-top:0}
-#view-roster .roster-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin:0 0 36px}
-#view-roster .roster-filter{display:flex;align-items:center;gap:12px;order:0;flex-wrap:wrap}
-#view-roster .roster-filter-btn{font-size:13px;font-weight:750;color:#19223a;background:#fff;border:1px solid #cdd3dc;padding:12px 20px;border-radius:40px;min-height:46px;white-space:nowrap;box-shadow:0 2px 3px #0e1c3507}
-#view-roster .roster-filter-btn.active{background:#f0444b;color:#fff;border-color:#f0444b;box-shadow:0 5px 18px #f0444b20}
-#view-roster .roster-filter-btn:hover:not(.active){background:#fff1f2;border-color:#f4878e}
-#view-roster .roster-search{order:1;margin-left:auto;max-width:430px;min-width:200px;flex:1;border:1px solid #c4cbd6;border-radius:60px;background:#fff;min-height:45px;padding:0 16px;color:#667184;gap:10px}
-#view-roster .roster-search>span{font-size:27px;color:#7f899a;line-height:1}
-#view-roster .roster-search input{background:transparent;color:#15213a;border:0;box-shadow:none;font-size:13px;padding:9px 0;min-height:43px}
-#view-roster .roster-search input::placeholder{color:#7d8594}
-#view-roster .roster-search:focus-within{border-color:#ed646b;box-shadow:0 0 0 3px #f13e481a}
-#view-roster .roster-name-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;align-items:start}
-#view-roster .roster-name-row{display:flex;align-items:center;gap:16px;min-width:0;width:100%;min-height:93px;text-align:left;padding:15px 22px;background:#fff;color:#131d33;border:1px solid #dce0e9;border-radius:15px;box-shadow:0 5px 14px #0a24420a;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
-#view-roster .roster-name-row:hover{background:#fff;transform:translateY(-2px);border-color:#f17379;box-shadow:0 10px 22px #0a24421a}
-#view-roster .roster-name-row:focus-visible{outline:3px solid #f27b80;outline-offset:2px}
-#view-roster .roster-name-row .roster-avatar{background:#ffe6e6;box-shadow:none;width:60px;height:60px;flex:0 0 60px;border-radius:16px;transform:none}
-#view-roster .roster-name-row .roster-avatar::before{background:#ffe6e6;inset:0;border-radius:16px}
-#view-roster .roster-name-row .roster-avatar>span{color:#e72a34;font-size:21px;font-weight:850;z-index:1}
-#view-roster .roster-name-identity{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}
-#view-roster .roster-name-identity strong{color:#141c31;font-size:16px;font-weight:850;letter-spacing:-.035em;line-height:1.14}
-#view-roster .roster-name-identity small{color:#454d5a;font-size:12px;font-weight:500}
-#view-roster .roster-name-arrow{color:#28364a;font-size:27px;font-weight:400;padding:0 3px;transition:transform .18s ease}
-#view-roster .roster-name-row:hover .roster-name-arrow{transform:translateX(3px);color:#e73c49}
-#view-roster .roster-no-results{grid-column:1/-1;border:1px dashed #cdd3df;color:#6d7688;padding:30px;text-align:center;border-radius:13px;background:#fff}
+#view-roster.view{padding:0!important;max-width:none!important;margin:0!important;min-height:calc(100vh - 70px);background:#f8f9fb!important;color:#131d32!important;overflow:hidden}
+#view-roster .roster-root{min-width:0;max-width:none;margin:0!important;width:100%;background:#f8f9fb!important;color:#131d32}
 
-/* Consistent light-themed detailed player profiles — data and layout unchanged. */
-#view-roster .roster-profile-top{margin:0;padding:24px clamp(22px,3vw,48px);border-bottom:1px solid #e5e8ef;background:#fff;color:#141d35}
-#view-roster .roster-back{color:#cf2e38;border-color:#f5c6ca;background:#fff2f2}
-#view-roster .roster-back:hover{background:#fee5e6}
-#view-roster .roster-profile-top-meta{color:#6c768a}
-#view-roster .roster-profile-top-meta span{color:#f24951}
-#view-roster .roster-profile-layout{padding:24px clamp(22px,3vw,48px) 55px;gap:22px}
-#view-roster .roster-profile-hero{background:linear-gradient(140deg,#f7454e,#bf2737 77%,#8f2436);border:1px solid #df5262;box-shadow:0 14px 35px #e5424c1d}
-#view-roster .roster-profile-hero::before{border-color:#ffffff32}
-#view-roster .roster-profile-hero-kicker,#view-roster .roster-profile-hero-kicker span{color:#fff8f8}
-#view-roster .roster-profile-subline span+span::before{color:#ffd5d7}
-#view-roster .roster-avatar-large{background:#fff2f2;box-shadow:0 18px 30px #a51f3040}
-#view-roster .roster-avatar-large::before{background:#ffe1e3}
-#view-roster .roster-avatar-large>span{color:#dc3042}
-#view-roster .roster-biography,#view-roster .roster-kpi,#view-roster .roster-stat-panel,#view-roster .roster-recent{background:#fff;border:1px solid #dce2e9;box-shadow:0 5px 16px #15213c0b}
-#view-roster .roster-bio-header{color:#df3641}
-#view-roster .roster-bio-grid span,#view-roster .roster-profile-title p,#view-roster .roster-stats-section p,#view-roster .roster-profile-footnote{color:#697386}
-#view-roster .roster-bio-grid strong,#view-roster .roster-profile-title h2,#view-roster .roster-stats-section h3,#view-roster .roster-stat-panel-heading h3{color:#131d36}
-#view-roster .roster-profile-title .eyebrow{color:#e8404a}
-#view-roster .roster-profile-title .eyebrow-line{background:#f18389}
-#view-roster .roster-kpi{border-top:3px solid #ed424c}
-#view-roster .roster-kpi>span,#view-roster .roster-kpi>small,#view-roster .roster-stat-panel-heading small{color:#768092}
-#view-roster .roster-kpi>strong{color:#13213b}
-#view-roster .roster-accent-mint{border-top-color:#20b99f}
-#view-roster .roster-accent-blue{border-top-color:#507ad7}
-#view-roster .roster-stats-section h3 span{color:#ef424d}
-#view-roster .roster-stat-row{border-top-color:#e9ecf1}
-#view-roster .roster-stat-row span,#view-roster .roster-recent-row>div:first-child span{color:#637084}
-#view-roster .roster-stat-row strong,#view-roster .roster-recent-row>div:first-child strong{color:#13213b}
-#view-roster .roster-recent-row{border-top-color:#e8edf2}
-#view-roster .roster-recent-rating{background:#e6fff4;color:#087d61;border-color:#a6e6ce}
-#view-roster .roster-empty-records{color:#566578;background:#fff;border:1px dashed #c5cfda}
+/* Editorial header: large but not oversized, with restrained diagonal artwork. */
+#view-roster .la-roster-banner{position:relative;isolation:isolate;display:flex;align-items:center;min-height:202px;height:auto;overflow:hidden;background:linear-gradient(105deg,#fff 0%,#fff 49%,#fff4f3 100%);border-bottom:1px solid #e9ecf1}
+#view-roster .la-roster-banner-copy{position:relative;z-index:2;margin:0;min-width:0;padding:30px clamp(25px,4vw,62px);border:0}
+#view-roster .la-roster-team{display:flex;align-items:center;gap:12px;margin-bottom:7px;font-size:11px;line-height:1.1;text-transform:uppercase;letter-spacing:.17em;font-weight:800;color:#ef4952}
+#view-roster .la-roster-team::before{content:'';width:22px;height:2px;background:#ee4954;border-radius:2px}
+#view-roster .la-roster-banner h1{font-family:inherit;font-weight:870;font-size:clamp(54px,5vw,75px);letter-spacing:-.065em;line-height:1.01;color:#111c30;margin:0 0 7px}
+#view-roster .la-roster-banner p{font-size:14px;line-height:1.5;margin:0;color:#758094;font-weight:500;letter-spacing:0}
+#view-roster .la-roster-diagonals{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+#view-roster .la-roster-diagonals::before,#view-roster .la-roster-diagonals::after{content:'';position:absolute;transform:skewX(-39deg);height:310px;top:-56px;border:0;border-radius:0}
+#view-roster .la-roster-diagonals::before{width:148px;right:23%;background:linear-gradient(180deg,#ff707258,#ff626d24)}
+#view-roster .la-roster-diagonals::after{width:86px;right:12%;background:linear-gradient(180deg,#f34551b3,#f57a805c)}
+#view-roster .la-roster-mark{position:absolute;z-index:1;right:clamp(29px,5vw,72px);top:31px;display:flex;gap:8px;transform:skew(-23deg)}
+#view-roster .la-roster-mark i{display:block;width:10px;height:33px;background:#e63e49;border-radius:5px}
 
-@media(max-width:1270px){
+/* Content rhythm and toolbar. */
+#view-roster .la-roster-body{padding:36px clamp(24px,3.8vw,58px) 75px;max-width:1550px;margin:0 auto}
+#view-roster .la-roster-body::before{content:'FIRST TEAM   /   15 PLAYERS';display:block;margin:0 0 20px;color:#5d697e;font-size:10px;font-weight:850;letter-spacing:.16em}
+#view-roster .roster-directory-simple{margin:0}
+#view-roster .roster-controls{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin:0 0 24px}
+#view-roster .roster-filter{display:flex;align-items:center;gap:7px;flex-wrap:wrap;order:0}
+#view-roster .roster-filter-btn{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:9px 16px;border:1px solid #dce2ea;border-radius:100px;background:#fff;color:#637088;box-shadow:none;font-size:11px;font-weight:760;letter-spacing:0;transition:background .15s,border .15s,color .15s}
+#view-roster .roster-filter-btn.active{background:#ed4450;color:#fff;border-color:#ed4450;box-shadow:0 4px 10px #f0444918}
+#view-roster .roster-filter-btn:hover:not(.active){background:#fff4f4;border-color:#f7acb0;color:#c12e36}
+#view-roster .roster-filter-btn span{display:none}
+#view-roster .roster-search{order:1;display:flex;align-items:center;gap:9px;max-width:312px;min-width:210px;min-height:40px;padding:0 14px;border-radius:9px;background:#fff;color:#8490a1;border:1px solid #dce2ea;box-shadow:none;flex:1;margin-left:auto}
+#view-roster .roster-search>span{font-size:23px;line-height:1;color:#8b96a6}
+#view-roster .roster-search input{width:100%;min-width:0;min-height:38px;padding:6px 0;color:#172037;font-size:12px;border:0!important;outline:0!important;box-shadow:none!important;background:transparent}
+#view-roster .roster-search input::placeholder{color:#8c97a8}
+#view-roster .roster-search:focus-within{border-color:#ed6a72;box-shadow:0 0 0 3px #ee49521a}
+
+/* No heavy nested column frames. Rows are the only clickable surfaces. */
+#view-roster .roster-name-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 13px;align-items:start;width:100%;min-width:0;background:transparent;border:0}
+#view-roster .roster-name-panel{min-width:0!important;display:contents!important;padding:0!important;margin:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important}
+#view-roster .roster-name-row{display:flex!important;align-items:center;gap:12px;width:100%;min-height:74px!important;min-width:0;margin:0!important;padding:12px 14px!important;text-align:left;background:#fff!important;color:#161f33!important;border:1px solid #e6e9ef!important;border-radius:11px!important;box-shadow:0 1px 2px #1a274008!important;transform:none;transition:border-color .17s ease,box-shadow .17s ease,transform .17s ease}
+#view-roster .roster-name-row:hover{background:#fff!important;border-color:#ef7b81!important;box-shadow:0 7px 21px #1c2d4312!important;transform:translateY(-2px)}
+#view-roster .roster-name-row:focus-visible{outline:3px solid #f2a4a8!important;outline-offset:2px}
+#view-roster .roster-name-row .roster-avatar{position:relative;width:44px!important;height:44px!important;flex:0 0 44px!important;display:grid;place-items:center;transform:none;box-shadow:none!important;border-radius:10px!important;background:#fff0ef!important;padding:0}
+#view-roster .roster-name-row .roster-avatar::before{inset:0!important;border-radius:10px!important;background:#fff0ef!important}
+#view-roster .roster-name-row .roster-avatar>span{position:relative;z-index:1;color:#e23c46!important;font-size:14px!important;font-weight:830!important;letter-spacing:-.035em}
+#view-roster .roster-name-identity{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
+#view-roster .roster-name-identity strong{font-family:inherit;color:#182239!important;font-size:13.5px!important;font-weight:780!important;letter-spacing:-.028em;line-height:1.22;overflow-wrap:anywhere}
+#view-roster .roster-name-identity small{color:#8891a2!important;font-weight:580!important;font-size:10.5px!important;line-height:1.15}
+#view-roster .roster-name-arrow{color:#a7afbc!important;font-size:24px;line-height:1;font-weight:350;padding-right:3px;transition:color .15s,transform .15s}
+#view-roster .roster-name-row:hover .roster-name-arrow{color:#e6404b!important;transform:translateX(2px)}
+#view-roster .roster-no-results{grid-column:1/-1;background:#fff;border:1px dashed #d4dbe5;border-radius:11px;color:#6f7a8c;padding:28px;text-align:center}
+
+/* Legacy roster template fallback, if a phone has cached the previous JS. */
+#view-roster .roster-page-heading{background:#fff;padding:35px clamp(24px,3.8vw,58px) 25px;margin:0!important;align-items:start}
+#view-roster .roster-page-heading h1{color:#111c30;font-size:clamp(38px,4vw,56px)}
+#view-roster .roster-page-heading h1 em{color:#ef4450;font-style:normal}
+#view-roster .roster-page-heading p{color:#7e899a}
+#view-roster .roster-section-head{display:none}
+#view-roster .roster-root>.roster-directory-simple{padding:28px clamp(24px,3.8vw,58px) 72px;margin:0!important}
+#view-roster .roster-root>.roster-directory-simple::before{content:'FIRST TEAM   /   15 PLAYERS';display:block;margin:0 0 20px;color:#5d697e;font-size:10px;font-weight:850;letter-spacing:.16em}
+
+/* Profiles retain all their existing data and layout, but use the same lighter palette. */
+#view-roster .roster-profile-top{background:#fff;border-bottom:1px solid #e7ebf1;color:#667286;padding:21px clamp(24px,3.5vw,50px);margin:0}
+#view-roster .roster-back{color:#d73c47;background:#fff2f2;border:1px solid #ffd7d9;border-radius:9px}
+#view-roster .roster-back:hover{background:#ffe9ea}
+#view-roster .roster-profile-top-meta{color:#8e98a8}
+#view-roster .roster-profile-layout{max-width:1600px;margin:auto;padding:36px clamp(24px,3.5vw,50px) 74px}
+#view-roster .roster-profile-hero{background:linear-gradient(125deg,#1a2740,#222d44 70%,#dd4352);border-color:#38445a}
+#view-roster .roster-profile-hero .roster-avatar-large{background:#ffedef}
+#view-roster .roster-profile-hero .roster-avatar-large::before{background:#ffe3e5}
+#view-roster .roster-profile-hero .roster-avatar-large span{color:#d9313e}
+#view-roster .roster-biography,#view-roster .roster-kpi,#view-roster .roster-stat-panel,#view-roster .roster-recent{background:#fff;border:1px solid #e5e9ef;box-shadow:0 3px 12px #192c4310}
+#view-roster .roster-bio-header{color:#df4550}
+#view-roster .roster-bio-grid span,#view-roster .roster-profile-title p,#view-roster .roster-stats-section p,#view-roster .roster-profile-footnote{color:#778394}
+#view-roster .roster-bio-grid strong,#view-roster .roster-profile-title h2,#view-roster .roster-stats-section h3,#view-roster .roster-stat-panel-heading h3{color:#18243a}
+#view-roster .roster-profile-title .eyebrow{color:#e54650}
+#view-roster .roster-kpi{border-top:3px solid #ef4752}
+#view-roster .roster-kpi>span,#view-roster .roster-kpi>small,#view-roster .roster-stat-panel-heading small{color:#7a8798}
+#view-roster .roster-kpi>strong{color:#18243a}
+#view-roster .roster-accent-mint{border-top-color:#2dbb9d}
+#view-roster .roster-accent-blue{border-top-color:#518bdd}
+#view-roster .roster-stats-section h3 span{color:#ec4551}
+#view-roster .roster-stat-row{border-top-color:#eaeef3}
+#view-roster .roster-stat-row span,#view-roster .roster-recent-row>div:first-child span{color:#6d788b}
+#view-roster .roster-stat-row strong,#view-roster .roster-recent-row>div:first-child strong{color:#17233a}
+#view-roster .roster-recent-rating{background:#e9fff3;color:#13866b;border-color:#bbead6}
+#view-roster .roster-empty-records{background:#fff;color:#798496;border:1px dashed #cad5df}
+
+@media(max-width:1200px){
   #view-roster .roster-name-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #view-roster .la-roster-banner{height:210px}
-  #view-roster .la-roster-diagonals::before{right:10%}
-}
-@media(max-width:850px){
-  #view-roster .roster-name-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  #view-roster .roster-filter{gap:8px}
-  #view-roster .roster-filter-btn{padding:10px 16px}
+  #view-roster .la-roster-banner{min-height:185px}
 }
 @media(max-width:700px){
-  body:has(#view-roster.active) .sidebar{background:#15203a;border-bottom:1px solid #293955}
-  body:has(#view-roster.active) .brand-mark{background:linear-gradient(135deg,#fa535c,#e93543)}
+  body:has(#view-roster.active) .main-panel{background:#f8f9fb;color:#121c30}
+  body:has(#view-roster.active) .sidebar{background:#111a2b;border-bottom:1px solid #26344a}
+  body:has(#view-roster.active) .brand-mark{background:#f14854}
   body:has(#view-roster.active) .brand-mark span{background:#fff}
-  body:has(#view-roster.active) .mobile-menu-toggle{border-color:#f17a82;color:#fff}
-  body:has(#view-roster.active) .sidebar .nav-link.selected{background:#f0444b;border-color:#f0444b;box-shadow:none}
-  body:has(#view-roster.active) .sidebar .nav-link.selected .nav-icon{color:#fff}
-  body:has(#view-roster.active) .main-panel{background:#fbfbfd;color:#121d35}
+  body:has(#view-roster.active) .sidebar .nav-link.selected{background:#ed4752;border-color:#ed4752;box-shadow:none}
+  body:has(#view-roster.active) .mobile-menu-toggle{border-color:#f0999e;color:#fff}
   body:has(#view-roster.active) .topbar{display:none}
-  body:has(#view-roster.active) .app-footer{background:#fff;color:#8e98a8;border-color:#e2e7f0}
-  #view-roster .la-roster-banner{height:180px}
-  #view-roster .la-roster-banner-copy{padding:20px 20px 20px 19px;margin-left:18px;border-left-width:3px}
-  #view-roster .la-roster-banner h1{font-size:55px}
-  #view-roster .la-roster-team{font-size:15px}
-  #view-roster .la-roster-banner p{font-size:14px}
-  #view-roster .la-roster-diagonals::before,#view-roster .la-roster-diagonals::after{width:70px;height:290px;top:-65px}
-  #view-roster .la-roster-diagonals::before{right:10%}
-  #view-roster .la-roster-mark{top:16px;right:21px;gap:5px}
-  #view-roster .la-roster-mark i{height:29px;width:9px}
-  #view-roster .la-roster-body{padding:19px 16px 35px}
-  #view-roster .roster-controls{gap:15px;margin-bottom:18px;align-items:stretch;flex-direction:column}
-  #view-roster .roster-filter{max-width:100%;flex-wrap:nowrap;overflow:auto;padding:2px 0 6px;scrollbar-width:none}
-  #view-roster .roster-filter-btn{flex:0 0 auto;min-height:39px;font-size:11px;padding:10px 15px}
-  #view-roster .roster-search{order:1;width:100%;max-width:none;min-width:0;min-height:44px}
-  #view-roster .roster-name-grid{grid-template-columns:minmax(0,1fr);gap:10px}
-  #view-roster .roster-name-row{min-height:76px;padding:12px 15px;border-radius:13px;gap:12px}
-  #view-roster .roster-name-row .roster-avatar{height:48px;width:48px;flex-basis:48px;border-radius:13px}
-  #view-roster .roster-name-row .roster-avatar::before{border-radius:13px}
-  #view-roster .roster-name-row .roster-avatar>span{font-size:16px}
-  #view-roster .roster-name-identity strong{font-size:14px}
-  #view-roster .roster-name-identity small{font-size:11px}
-  #view-roster .roster-profile-top{padding:15px 16px}
-  #view-roster .roster-profile-layout{padding:15px 16px 36px}
-  #view-roster .roster-profile-side{display:block}
-  #view-roster .roster-profile-hero{min-height:330px}
-  #view-roster .roster-profile-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  body:has(#view-roster.active) .app-footer{background:#f8f9fb;border-color:#e7ebf1;color:#8a95a5}
+  #view-roster .la-roster-banner{min-height:158px}
+  #view-roster .la-roster-banner-copy{padding:27px 20px}
+  #view-roster .la-roster-team{font-size:9px;gap:8px}
+  #view-roster .la-roster-team::before{width:15px}
+  #view-roster .la-roster-banner h1{font-size:51px}
+  #view-roster .la-roster-banner p{font-size:12px}
+  #view-roster .la-roster-diagonals::before{right:16%;width:54px}
+  #view-roster .la-roster-diagonals::after{right:4%;width:38px}
+  #view-roster .la-roster-mark{right:19px;top:23px;gap:5px}
+  #view-roster .la-roster-mark i{width:7px;height:23px}
+  #view-roster .la-roster-body{padding:23px 16px 45px}
+  #view-roster .la-roster-body::before{margin-bottom:17px}
+  #view-roster .roster-controls{flex-direction:column;align-items:stretch;gap:13px;margin-bottom:18px}
+  #view-roster .roster-filter{flex-wrap:nowrap;overflow:auto;gap:6px;scrollbar-width:none;padding-bottom:2px}
+  #view-roster .roster-filter-btn{font-size:11px;padding:8px 14px;min-height:37px;flex-shrink:0}
+  #view-roster .roster-search{width:100%;max-width:none;min-width:0;margin:0}
+  #view-roster .roster-name-grid{grid-template-columns:minmax(0,1fr);gap:8px}
+  #view-roster .roster-name-row{min-height:67px!important;padding:9px 12px!important}
+  #view-roster .roster-name-row .roster-avatar{width:42px!important;height:42px!important;flex-basis:42px!important}
+  #view-roster .roster-name-identity strong{font-size:13px!important}
+  #view-roster .roster-name-identity small{font-size:10px!important}
+  #view-roster .roster-page-heading{padding:24px 16px 16px}
+  #view-roster .roster-root>.roster-directory-simple{padding:20px 16px 46px}
+  #view-roster .roster-profile-top{padding:16px}
+  #view-roster .roster-profile-layout{padding:20px 16px 48px}
 }
 @media(prefers-reduced-motion:reduce){#view-roster .roster-name-row,#view-roster .roster-name-arrow{transition:none}}
