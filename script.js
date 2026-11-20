@@ -292,20 +292,71 @@
   function reportFilename(ext) {return `${slug(reportMatch.player)}-${reportMatch.date}-rating-${reportMatch.rating}.${ext}`;}
   function openReport(input) {
     reportMatch=S.normalizeMatch(input);
-    const m=reportMatch;const r=E.calculate(m.stats,m.position,m.weights,m.positionShares);
-    const meta=[['TEAM',m.team||'—'],['OPPONENT',m.opponent||'—'],['MATCH DATE',m.date],['POSITION',formatPosition(m.position,m.positionShares)],['MINUTES',m.minutes+' / 50'],['RESULT',m.result==='none'?'Not recorded':m.result.toUpperCase()],['GOALS + ASSISTS',r.goalContributions],['EVENTS TRACKED',`${E.EVENTS.length} types`]];
+    const m=reportMatch;
+    const r=E.calculate(m.stats,m.position,m.weights,m.positionShares);
     const rate=v=>v===null?'—':v+'%';
-    const keyMetrics=`<div class="report-efficiency"><div><span>SHOT ACCURACY</span><strong>${rate(r.shotAccuracy)}</strong><small>${r.shotsOnTarget} / ${r.shotAttempts} shots on target</small><div class="report-metric-bar"><i style="width:${r.shotAccuracy||0}%;background:#ff7d89"></i></div></div><div><span>PASS COMPLETION</span><strong>${rate(r.passAccuracy)}</strong><small>${r.stats.passGood} / ${r.passAttempts} passes</small><div class="report-metric-bar"><i style="width:${r.passAccuracy||0}%;background:#7667df"></i></div></div><div><span>DRIBBLE COMPLETION</span><strong>${rate(r.dribbleAccuracy)}</strong><small>${r.stats.dribbleWon} / ${r.dribbleAttempts} dribbles</small><div class="report-metric-bar"><i style="width:${r.dribbleAccuracy||0}%;background:#14a887"></i></div></div><div><span>POSSESSION LOST</span><strong>${r.totalPossessionLost}</strong><small>All recorded turnover causes</small></div></div>`;
-    const sections=E.GROUPS.map(g=>{
-      const rowData=g.events.map(([key,label])=>{
-        const factor=r.factors[E.BY_KEY[key].factorGroup];
-        const impact=r.impact[key];
-        return `<tr><td>${escapeHTML(label)}</td><td class="${m.stats[key]===0?'zero':''}">${m.stats[key]}</td><td>${nfmt(m.weights[key],3)}</td><td>${factor.toFixed(3)}×</td><td class="${impact>0?'plus':impact<0?'minus':'zero'}">${nfmt(impact,3)}</td></tr>`;
-      }).join('');
+    const resultLabel=m.result==='none'?'Not recorded':m.result.charAt(0).toUpperCase()+m.result.slice(1).toLowerCase();
+    const brandTitle='Northland Nomads Performance Analytics';
+    const summaryBlocks=`
+      <div class="report-summary-card report-summary-matchup">
+        <div class="report-summary-line"><span class="report-summary-label">Team</span><strong>${escapeHTML(m.team||'—')}</strong></div>
+        <div class="report-summary-vs">vs</div>
+        <div class="report-summary-line"><span class="report-summary-label">Opponent</span><strong>${escapeHTML(m.opponent||'—')}</strong></div>
+      </div>
+      <div class="report-summary-card report-summary-meta">
+        <div class="report-summary-line"><span class="report-summary-label">Match date</span><strong>${escapeHTML(m.date)}</strong></div>
+        <div class="report-summary-line"><span class="report-summary-label">Minutes</span><strong>${escapeHTML(m.minutes+' / 50 min')}</strong></div>
+        <div class="report-summary-line"><span class="report-summary-label">Position</span><strong>${escapeHTML(formatPosition(m.position,m.positionShares))}</strong></div>
+      </div>
+      <div class="report-summary-card report-summary-outcome">
+        <div class="report-summary-line"><span class="report-summary-label">Result</span><strong>${escapeHTML(resultLabel)}</strong></div>
+        <div class="report-summary-line"><span class="report-summary-label">Goals + Assists</span><strong>${escapeHTML(String(r.goalContributions))}</strong></div>
+        <div class="report-summary-line"><span class="report-summary-label">Events tracked</span><strong>${escapeHTML(E.EVENTS.length+' Event Types')}</strong></div>
+      </div>`;
+
+    const kpiCards=`<div class="report-kpi-strip">
+      <div class="report-kpi-card"><div class="report-kpi-value">${rate(r.shotAccuracy)}</div><div class="report-kpi-title">Shot Accuracy</div><div class="report-kpi-detail">(${r.shotsOnTarget} / ${r.shotAttempts})</div></div>
+      <div class="report-kpi-card"><div class="report-kpi-value">${rate(r.passAccuracy)}</div><div class="report-kpi-title">Pass Completion</div><div class="report-kpi-detail">(${r.stats.passGood} / ${r.passAttempts})</div></div>
+      <div class="report-kpi-card"><div class="report-kpi-value">${rate(r.dribbleAccuracy)}</div><div class="report-kpi-title">Dribble Completion</div><div class="report-kpi-detail">(${r.stats.dribbleWon} / ${r.dribbleAttempts})</div></div>
+      <div class="report-kpi-card"><div class="report-kpi-value">${r.totalPossessionLost}</div><div class="report-kpi-title">Possession Lost</div><div class="report-kpi-detail">All turnover causes</div></div>
+    </div>`;
+
+    const groupCards={};
+    E.GROUPS.forEach(g=>{
       const subtotal=r.groups.find(x=>x.id===g.id).subtotal;
-      return `<section class="report-section"><div class="report-section-head"><strong>${escapeHTML(g.title)}</strong><span>${nfmt(subtotal)} pts</span></div><table class="report-table"><thead><tr><th>TRACKED EVENT</th><th>COUNT</th><th>WEIGHT</th><th>POS.</th><th>IMPACT</th></tr></thead><tbody>${rowData}</tbody></table></section>`;
-    }).join('');
-    $('reportBody').innerHTML=`<div class="report-brand">NORTHLAND NOMADS · MATCH PERFORMANCE REPORT</div><div class="report-hero"><div><h2>${escapeHTML(m.player)}</h2><p>Full match performance report · ${escapeHTML(m.date)}</p></div><div class="report-score"><strong>${r.rating.toFixed(1)}</strong><span>${escapeHTML(r.grade.toUpperCase())}</span></div></div><div class="report-meta">${meta.map(([label,val])=>`<div><span>${label}</span><strong>${escapeHTML(val)}</strong></div>`).join('')}</div>${keyMetrics}${sections}<div class="report-final"><div><b>Final match rating</b><small>6.5 baseline ${nfmt(r.net)} event points · capped at 3.0–10.0</small></div><strong>${r.rating.toFixed(1)} / 10</strong></div><div class="report-disclaimer">All ${E.EVENTS.length} tracked event types are shown, including zero-count events. Impact = event count × event weight × position factor. Event weights are independently estimated and are not official SofaScore/FotMob scoring data. Shot accuracy, pass/dribble completion and total possession lost are automatically derived from tracked counts. Each shot belongs to one shot category, so big and exceptional misses are not double-penalized. Dispossessed means an opponent took the controlled ball directly; possession lost is not an extra rating penalty. Saved reports preserve the weights in effect when recorded.</div>`;
+      const rows=g.events.map(([key,label])=>{
+        const impact=r.impact[key];
+        return `<tr><td>${escapeHTML(label)}</td><td class="${m.stats[key]===0?'zero':''}">${m.stats[key]}</td><td>${nfmt(m.weights[key],3)}</td><td class="${impact>0?'plus':impact<0?'minus':'zero'}">${nfmt(impact,3)}</td></tr>`;
+      }).join('');
+      groupCards[g.id]=`<section class="report-card report-card-${g.id}"><div class="report-card-head"><div class="report-card-title">${escapeHTML(g.title)}</div><div class="report-card-total ${subtotal<0?'negative':''}">${nfmt(subtotal)} pts</div></div><table class="report-table modern"><thead><tr><th>Event</th><th>Count</th><th>Weight</th><th>Impact</th></tr></thead><tbody>${rows}</tbody></table></section>`;
+    });
+
+    const sections=`<div class="report-sections-top">${groupCards.attack||''}${groupCards.possession||''}</div><div class="report-sections-bottom">${groupCards.defense||''}${groupCards.goalkeeping||''}${groupCards.other||''}</div>`;
+    const footer=`<div class="report-disclaimer">Generated report preserves the saved weights for this match. Impact = event count × event weight × position factor. Shot accuracy, pass completion, dribble completion, and possession lost are derived automatically from tracked counts.</div>`;
+
+    $('reportBody').innerHTML=`
+      <article class="report-page report-redesign">
+        <div class="report-topline">
+          <div class="report-topline-brand"><span class="report-topline-mark">//</span><span>${brandTitle}</span></div>
+          <div class="report-topline-version">V3 Beta</div>
+        </div>
+        <div class="report-showcase">
+          <div class="report-player-block">
+            <h1>${escapeHTML(m.player)}</h1>
+            <p>Full Match Performance Report</p>
+          </div>
+          <div class="report-rating-panel">
+            <div class="report-rating-label">Final Rating</div>
+            <div class="report-rating-main">${r.rating.toFixed(1)}<span>/ 10</span></div>
+            <div class="report-rating-grade">${escapeHTML(r.grade.toUpperCase())}</div>
+            <div class="report-rating-side"><div>6.5 Baseline</div><strong>${nfmt(r.net)} Event Pts</strong></div>
+          </div>
+        </div>
+        <div class="report-summary-grid">${summaryBlocks}</div>
+        ${kpiCards}
+        ${sections}
+        ${footer}
+      </article>`;
     $('reportModal').hidden=false;
     document.body.style.overflow='hidden';
     $('reportBody').scrollTop=0;
