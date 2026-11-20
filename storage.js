@@ -8,12 +8,70 @@
   const uniqueId = () => (global.crypto && typeof global.crypto.randomUUID === 'function') ? global.crypto.randomUUID() : `match-${Date.now()}-${Math.random().toString(36).slice(2,10)}`;
   const text = (v, max=160) => String(v == null ? '' : v).slice(0,max).trim();
   const safeDate = v => /^\d{4}-\d{2}-\d{2}$/.test(String(v)) && !Number.isNaN(Date.parse(String(v))) ? String(v) : TODAY();
+  // Season IDs are independent of match dates: indoor seasons may cross calendar years.
+  // Unlabeled legacy matches are assigned by their recorded calendar year only once.
+  const FIRST_ARCHIVE = '2026';
+  const INITIAL_ACTIVE = '2027';
+  const validSeason = v => /^20\d{2}$/.test(String(v||'')) ? String(v) : null;
+  const seasonFromDate = date => validSeason(String(date||'').slice(0,4)) || FIRST_ARCHIVE;
+  const seasonName = id => String(id)+' Season';
+  const playerKey = name => String(name||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,90);
+  const manualKeys = ['appearances','minutes',...E.EVENTS.map(ev=>ev.key)];
+  function cleanManualSeasonStats(input){
+    const out={};
+    if(!input || typeof input!=='object' || Array.isArray(input))return out;
+    for(const [rawSeason,players] of Object.entries(input)){
+      const season=validSeason(rawSeason);
+      if(!season || !players || typeof players!=='object' || Array.isArray(players))continue;
+      const subset={};
+      for(const [rawName,stats] of Object.entries(players)){
+        const key=playerKey(rawName);
+        if(!key || !stats || typeof stats!=='object' || Array.isArray(stats))continue;
+        const values={};
+        for(const event of manualKeys){
+          const v=stats[event];
+          if(v===undefined || v===null || v==='')continue;
+          const n=Number(v);
+          if(Number.isFinite(n) && n>=0 && Number.isInteger(n))values[event]=Math.min(999999,n);
+        }
+        if(Object.keys(values).length)subset[key]=values;
+      }
+      if(Object.keys(subset).length)out[season]=subset;
+    }
+    return out;
+  }
+  function cleanSeasons(raw,matches,activeHint,manual){
+    const ids=new Set([FIRST_ARCHIVE,INITIAL_ACTIVE]);
+    const archivedById={};
+    if(Array.isArray(raw))for(const entry of raw){
+      const id=validSeason(typeof entry==='object' && entry ? entry.id : entry);
+      if(!id)continue;
+      ids.add(id);
+      if(entry && typeof entry==='object')archivedById[id]=entry.archived===true;
+    }
+    if(Array.isArray(matches))for(const match of matches){const id=validSeason(match.seasonId);if(id)ids.add(id);}
+    for(const id of Object.keys(manual||{})){if(validSeason(id))ids.add(id);}
+    let active=validSeason(activeHint) || INITIAL_ACTIVE;
+    ids.add(active);
+    return {seasons:[...ids].sort().map(id=>({id,name:seasonName(id),archived:id===active?false:(archivedById[id] ?? Number(id)<Number(active))})),active};
+  }
+  function normalizeSeasonState(input){
+    const matches=Array.isArray(input.matches)?input.matches:[];
+    const result=cleanSeasons(input.seasons,matches,input.activeSeasonId,input.manualSeasonStats);
+    const ids=result.seasons.map(s=>s.id);
+    return {
+      seasons:result.seasons,activeSeasonId:result.active,
+      viewSeasonId:ids.includes(validSeason(input.viewSeasonId))?validSeason(input.viewSeasonId):result.active,
+      manualSeasonStats:cleanManualSeasonStats(input.manualSeasonStats)
+    };
+  }
   function normalizeMatch(item) {
     if (!item || typeof item !== 'object' || Array.isArray(item)) throw new Error('An imported match is not a valid object.');
     if (!item.stats || typeof item.stats !== 'object') throw new Error('An imported match is missing its event statistics.');
     const match = {
       id: text(item.id, 120) || uniqueId(), player: text(item.player, 90) || 'Unnamed player',
       team: text(item.team, 90), opponent: text(item.opponent, 90), date: safeDate(item.date),
+      seasonId: validSeason(item.seasonId || item.season) || seasonFromDate(item.date),
       position: ['forward','midfielder','defender','keeper','mixed'].includes(item.position) ? item.position : 'midfielder',
       positionShares: E.cleanPositionShares(item.positionShares),
       minutes: Math.max(0, Math.min(50, Number(item.minutes) || 0)),
@@ -59,7 +117,7 @@
     }
     return { weights: current, changed };
   }
-  function emptyState() { return { matches: [], draft: null, weights: E.defaultWeights() }; }
+  function emptyState() { return { matches: [], draft: null, weights: E.defaultWeights(), ...normalizeSeasonState({matches:[]}) }; }
   function load() {
     const blank = emptyState();
     try {
@@ -69,7 +127,7 @@
       if (!parsed || typeof parsed !== 'object') throw new Error('Stored file is invalid');
       const matches = Array.isArray(parsed.matches) ? parsed.matches.map(normalizeMatch) : [];
       const migrated = migrateLegacyDefaultWeights(parsed.weights || blank.weights);
-      return { state: { matches, draft: parsed.draft || null, weights: migrated.weights }, available: true, migratedWeights: migrated.changed };
+      return { state: { matches, draft: parsed.draft || null, weights: migrated.weights, ...normalizeSeasonState({...parsed,matches}) }, available: true, migratedWeights: migrated.changed };
     } catch (error) {
       return { state: blank, available: false, reason: error.message };
     }
@@ -79,8 +137,9 @@
     catch (_) { return false; }
   }
   function exportBackup(state) {
-    return { type: TYPE, version: 1, exportedAt: new Date().toISOString(), format: 'Indoor Rating Studio',
-      matches: state.matches.map(normalizeMatch), weights: E.cleanWeights(state.weights) };
+    return { type: TYPE, version: 2, exportedAt: new Date().toISOString(), format: 'Northland Nomads',
+      matches: state.matches.map(normalizeMatch), weights: E.cleanWeights(state.weights),
+      ...normalizeSeasonState(state) };
   }
   function safeCell(v) {
     let content = String(v == null ? '' : v);
@@ -90,7 +149,7 @@
   }
   function csvTable(rows) { return '\uFEFF' + rows.map(row => row.map(safeCell).join(',')).join('\r\n'); }
   function exportLibraryCSV(matches) {
-    const meta = ['id','player','team','opponent','date','position','minutes','result','rating','createdAt','updatedAt'];
+    const meta = ['id','player','team','opponent','date','seasonId','position','minutes','result','rating','createdAt','updatedAt'];
     const shareKeys=E.POSITION_KEYS.map(k=>'positionShare:'+k);
     const eventKeys = E.EVENTS.map(ev => ev.key);
     const weightKeys = eventKeys.map(key => 'weight:'+key);
@@ -107,7 +166,7 @@
   function exportReportCSV(match) {
     const m = normalizeMatch(match);
     const result = E.calculate(m.stats, m.position, m.weights, m.positionShares);
-    const rows = [['Indoor Rating Studio','Match report'],['Player',m.player],['Team',m.team],['Opponent',m.opponent],['Date',m.date],['Position',m.position],['Position allocation',m.position==='mixed'?E.POSITION_KEYS.filter(k=>m.positionShares[k]>0).map(k=>`${k}: ${m.positionShares[k]}%`).join(' / '):'Single position'],['Minutes',m.minutes],['Result',m.result],['Match rating',result.rating],['Pass completion (%)',result.passAccuracy===null?'':result.passAccuracy],['Passes completed',m.stats.passGood],['Pass attempts',result.passAttempts],['Shot accuracy (%)',result.shotAccuracy===null?'':result.shotAccuracy],['Total shots',result.shotAttempts],['Shots on target',result.shotsOnTarget],['Shots off target',result.shotsOffTarget],['Dribble completion (%)',result.dribbleAccuracy===null?'':result.dribbleAccuracy],['Dribbles completed',m.stats.dribbleWon],['Dribble attempts',result.dribbleAttempts],['Total possession lost',result.totalPossessionLost],[],['Category','Event','Count','Base weight','Position multiplier','Rating impact']];
+    const rows = [['Northland Nomads','Match report'],['Season',m.seasonId],['Player',m.player],['Team',m.team],['Opponent',m.opponent],['Date',m.date],['Position',m.position],['Position allocation',m.position==='mixed'?E.POSITION_KEYS.filter(k=>m.positionShares[k]>0).map(k=>`${k}: ${m.positionShares[k]}%`).join(' / '):'Single position'],['Minutes',m.minutes],['Result',m.result],['Match rating',result.rating],['Pass completion (%)',result.passAccuracy===null?'':result.passAccuracy],['Passes completed',m.stats.passGood],['Pass attempts',result.passAttempts],['Shot accuracy (%)',result.shotAccuracy===null?'':result.shotAccuracy],['Total shots',result.shotAttempts],['Shots on target',result.shotsOnTarget],['Shots off target',result.shotsOffTarget],['Dribble completion (%)',result.dribbleAccuracy===null?'':result.dribbleAccuracy],['Dribbles completed',m.stats.dribbleWon],['Dribble attempts',result.dribbleAttempts],['Total possession lost',result.totalPossessionLost],[],['Category','Event','Count','Base weight','Position multiplier','Rating impact']];
     E.GROUPS.forEach(group => {
       group.events.forEach(([key,label]) => rows.push([group.title,label,m.stats[key],m.weights[key],result.factors[E.BY_KEY[key].factorGroup],Number(result.impact[key].toFixed(4))]));
       rows.push([group.title+' subtotal','','','','',Number(result.groups.find(g=>g.id===group.id).subtotal.toFixed(4))]);
@@ -146,7 +205,7 @@
         const hasShareColumns=E.POSITION_KEYS.some(k=>headings.includes('positionShare:'+k));
         return normalizeMatch({...obj, stats, weights, positionShares:hasShareColumns?shares:undefined});
       });
-      return { matches, weights: null, source: 'CSV library' };
+      return { matches, weights: null, seasons: null, activeSeasonId: null, viewSeasonId: null, manualSeasonStats: null, source: 'CSV library' };
     }
     let parsed;
     try {parsed = JSON.parse(String(raw));} catch (_) {throw new Error('The selected file is not valid JSON.');}
@@ -155,7 +214,11 @@
     const items = Array.isArray(parsed.matches) ? parsed.matches : (parsed.match ? [parsed.match] : (parsed.stats ? [parsed] : null));
     if (!items) throw new Error('No matches were found in this JSON file.');
     if (items.length > 20000) throw new Error('This backup contains too many matches.');
-    return { matches: items.map(normalizeMatch), weights: parsed.weights ? migrateLegacyDefaultWeights(parsed.weights).weights : null, source: 'JSON backup' };
+    return { matches: items.map(normalizeMatch), weights: parsed.weights ? migrateLegacyDefaultWeights(parsed.weights).weights : null,
+      seasons: Array.isArray(parsed.seasons)?parsed.seasons:null,
+      activeSeasonId: validSeason(parsed.activeSeasonId), viewSeasonId: validSeason(parsed.viewSeasonId),
+      manualSeasonStats: parsed.manualSeasonStats ? cleanManualSeasonStats(parsed.manualSeasonStats) : null,
+      source: 'JSON backup' };
   }
   function download(filename, data, mime) {
     const blob = new Blob([data],{type:mime});
@@ -164,5 +227,5 @@
     document.body.appendChild(anchor);anchor.click();anchor.remove();
     setTimeout(()=>URL.revokeObjectURL(uri),1500);
   }
-  global.RatingStorage = Object.freeze({ KEY, TYPE, uniqueId, TODAY, normalizeMatch, emptyState, migrateLegacyDefaultWeights, load, save, exportBackup, exportLibraryCSV, exportReportCSV, importData, download });
+  global.RatingStorage = Object.freeze({ KEY, TYPE, uniqueId, TODAY, normalizeMatch, emptyState, migrateLegacyDefaultWeights, load, save, exportBackup, exportLibraryCSV, exportReportCSV, importData, download, normalizeSeasonState, cleanManualSeasonStats, cleanSeasons, validSeason, seasonFromDate, seasonName, playerKey, manualKeys });
 })(window);

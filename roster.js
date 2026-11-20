@@ -34,29 +34,39 @@
   const sum=(matches,key)=>matches.reduce((acc,m)=>acc+(Number(m?.stats?.[key])||0),0);
   const number=(n)=>Number(n||0).toLocaleString('en-US');
   let allMatches=[];
+  let seasonId='2027';
+  let seasons=[];
+  let manualSeasonStats={};
   let selectedId=null;
   let search='';
   let role='all';
-  function matchesFor(player){return allMatches.filter(m=>canonical(m.player)===canonical(player.name));}
+  function matchesFor(player){return allMatches.filter(m=>canonical(m.player)===canonical(player.name) && m.seasonId===seasonId);}
   function snapshot(player){
     const games=matchesFor(player);
-    const goals=sum(games,'goals'),assists=sum(games,'assists');
-    const totalPasses=sum(games,'passGood')+sum(games,'passBad');
-    const totalDribbles=sum(games,'dribbleWon')+sum(games,'dribbleLost');
-    const totalShots=sum(games,'goals')+sum(games,'shotsOn')+sum(games,'shotsOff')+sum(games,'shotBlocked')+sum(games,'bigMisses')+sum(games,'exceptionalMiss');
+    const manual=(manualSeasonStats[seasonId]||{})[player.id] || {};
+    const sumKey=key=>Object.prototype.hasOwnProperty.call(manual,key)?manual[key]:sum(games,key);
+    const goals=sumKey('goals'),assists=sumKey('assists');
+    const passes=sumKey('passGood'), passAttempts=passes+sumKey('passBad');
+    const dribbles=sumKey('dribbleWon'), dribbleAttempts=dribbles+sumKey('dribbleLost');
+    const shotsOn=goals+sumKey('shotsOn');
+    const shotAttempts=shotsOn+sumKey('shotsOff')+sumKey('shotBlocked')+sumKey('bigMisses')+sumKey('exceptionalMiss');
     const rating=games.length?games.reduce((total,m)=>total+(Number(m.rating)||0),0)/games.length:null;
     const percentage=(won,total)=>total?Math.round(won/total*100)+'%':'—';
     return {
-      games,apps:games.length,goals,assists,rating,minutes:games.reduce((t,m)=>t+(Number(m.minutes)||0),0),
-      passes:sum(games,'passGood'),passAttempts:totalPasses,passPct:percentage(sum(games,'passGood'),totalPasses),
-      dribbles:sum(games,'dribbleWon'),dribbleAttempts:totalDribbles,dribblePct:percentage(sum(games,'dribbleWon'),totalDribbles),
-      shotsOn:sum(games,'goals')+sum(games,'shotsOn'),shotAttempts:totalShots,
-      shotPct:percentage(sum(games,'goals')+sum(games,'shotsOn'),totalShots),
-      tackles:sum(games,'tackles'),interceptions:sum(games,'intercepts'),blocks:sum(games,'blocks'),
-      recoveries:sum(games,'recoveries'),keyPasses:sum(games,'keyPass'),
-      turnovers:sum(games,'passBad')+sum(games,'dribbleLost')+sum(games,'posLost')+sum(games,'badTouch')
+      games,manual,allEvents:Object.fromEntries(global.RatingEngine.EVENTS.map(ev=>[ev.key,sumKey(ev.key)])),
+      apps:Object.prototype.hasOwnProperty.call(manual,'appearances')?manual.appearances:games.length,
+      goals,assists,rating,recordedGames:games.length,
+      minutes:Object.prototype.hasOwnProperty.call(manual,'minutes')?manual.minutes:games.reduce((t,m)=>t+(Number(m.minutes)||0),0),
+      passes,passAttempts,passPct:percentage(passes,passAttempts),
+      dribbles,dribbleAttempts,dribblePct:percentage(dribbles,dribbleAttempts),
+      shotsOn,shotAttempts,shotPct:percentage(shotsOn,shotAttempts),
+      tackles:sumKey('tackles'),interceptions:sumKey('intercepts'),blocks:sumKey('blocks'),
+      recoveries:sumKey('recoveries'),keyPasses:sumKey('keyPass'),
+      turnovers:sumKey('passBad')+sumKey('dribbleLost')+sumKey('posLost')+sumKey('badTouch')
     };
   }
+  const seasonOptions=()=>seasons.map(s=>`<option value="${clean(s.id)}" ${s.id===seasonId?'selected':''}>${clean(s.name)}${s.archived?' · Archive':''}</option>`).join('');
+  const seasonControl=()=>`<label class="roster-season-control">SEASON <select data-roster-season aria-label="Roster season">${seasonOptions()}</select></label>`;
   function avatar(player,large=false){
     const [colorA,colorB]=palette[player.index%palette.length];
     return `<span class="roster-avatar${large?' roster-avatar-large':''}" style="--roster-a:${colorA};--roster-b:${colorB}" aria-hidden="true"><span>${clean(getInitials(player.name))}</span></span>`;
@@ -77,12 +87,13 @@
     }
     root.innerHTML=`
       <header class="la-roster-banner">
-        <div class="la-roster-banner-copy"><div class="la-roster-team">Northland Nomads</div><h1>Roster</h1><p>2026/27 Indoor Season</p></div>
+        <div class="la-roster-banner-copy"><div class="la-roster-team">Northland Nomads</div><h1>Roster</h1><p>${clean(seasonId)} Indoor Season</p></div>
         <div class="la-roster-diagonals" aria-hidden="true"><i></i><i></i></div>
         <div class="la-roster-mark" aria-hidden="true"><i></i><i></i></div>
       </header>
       <section class="la-roster-body" aria-label="Northland Nomads player directory">
         <div class="roster-controls">
+          ${seasonControl()}
           <div class="roster-filter" role="group" aria-label="Filter players by position">${[['all','All Players'],['mixed','Mixed'],['forward','FWD'],['defender','DEF']].map(([key,label])=>`<button class="roster-filter-btn${role===key?' active':''}" type="button" data-roster-filter="${key}" aria-pressed="${role===key}">${label}</button>`).join('')}</div>
           <label class="roster-search"><span aria-hidden="true">⌕</span><input id="rosterSearch" type="search" placeholder="Search roster..." autocomplete="off" value="${clean(search)}" aria-label="Search team roster"></label>
         </div>
@@ -100,26 +111,30 @@
     const [colorA,colorB]=palette[player.index%palette.length];
     const latest=dates.length?`<section class="roster-recent"><div class="roster-stat-panel-heading"><h3>Recent performances</h3><small>Saved matches on this device</small></div>${dates.map(match=>`<div class="roster-recent-row"><div><strong>vs ${clean(match.opponent||'Opponent not recorded')}</strong><span>${clean(match.date)} · ${number(match.minutes)} min</span></div><div class="roster-recent-rating">${Number(match.rating).toFixed(1)}</div></div>`).join('')}</section>`:'<div class="roster-empty-records">No match performances have been saved for this player yet. Their season statistics will update when matches are recorded under this name.</div>';
     root.innerHTML=`
-      <div class="roster-profile-top"><button type="button" class="roster-back" data-roster-back><span aria-hidden="true">←</span> Back to roster</button><span class="roster-profile-top-meta">NORTHLAND NOMADS <span> / </span> PLAYER PROFILE</span></div>
+      <div class="roster-profile-top"><button type="button" class="roster-back" data-roster-back><span aria-hidden="true">←</span> Back to roster</button>${seasonControl()}<span class="roster-profile-top-meta">NORTHLAND NOMADS <span> / </span> PLAYER PROFILE</span></div>
       <div class="roster-profile-layout">
         <aside class="roster-profile-side"><div class="roster-profile-hero" style="--roster-a:${colorA};--roster-b:${colorB}"><div class="roster-profile-hero-kicker">NORTHLAND NOMADS <span>·</span> PLAYER PROFILE</div><div class="roster-portrait">${avatar(player,true)}<span class="roster-portrait-arc" aria-hidden="true"></span></div><div class="roster-profile-name">${clean(player.name)}</div><div class="roster-profile-subline"><span>Northland Nomads</span><span>${clean(posLabel[player.position])}</span></div></div>
           <div class="roster-biography"><div class="roster-bio-header">PLAYER INFORMATION</div><div class="roster-bio-grid"><div><span>Positions</span><strong>${clean(posLabel[player.position])}</strong></div><div><span>Birthdate</span><strong>${clean(player.birthdate||'—')}</strong></div><div><span>Preferred foot</span><strong>${clean(player.foot)}</strong></div><div><span>Club</span><strong>Northland Nomads</strong></div></div></div>
-          <div class="roster-profile-footnote">Roster details are preloaded. Match statistics shown here are personal to this device.</div>
+          <div class="roster-profile-footnote">Season data is stored on this device. Manually entered totals replace matching match-aggregated totals, without affecting individual reports.</div>
         </aside>
-        <div class="roster-profile-main"><div class="roster-profile-title"><div><div class="eyebrow">PLAYER PERFORMANCE <span class="eyebrow-line"></span> SEASON TOTALS</div><h2>${clean(player.name)}</h2><p>${clean(posLabel[player.position])} · ${stats.apps} recorded ${stats.apps===1?'appearance':'appearances'}</p></div></div>
-          <div class="roster-profile-kpis">${kpi('Appearances',stats.apps,'Recorded matches','purple')}${kpi('Goals',stats.goals,'Total scored','coral')}${kpi('Assists',stats.assists,'Total created','mint')}${kpi('Average rating',stats.rating===null?'—':stats.rating.toFixed(1),'Across appearances','blue')}</div>
-          <div class="roster-stats-section"><h3>Player statistics<span>.</span></h3><p>Compiled automatically from saved match reports.</p></div>
+        <div class="roster-profile-main"><div class="roster-profile-title"><div><div class="eyebrow">PLAYER PERFORMANCE <span class="eyebrow-line"></span> ${clean(seasonId)} SEASON</div><h2>${clean(player.name)}</h2><p>${clean(posLabel[player.position])} · ${stats.apps} ${stats.apps===1?'appearance':'appearances'} · ${stats.recordedGames} rated matches</p></div><button type="button" class="btn btn-secondary" data-season-edit-player="${clean(player.id)}">Edit season statistics</button></div>
+          <div class="roster-profile-kpis">${kpi('Appearances',stats.apps,'Recorded matches','purple')}${kpi('Goals',stats.goals,'Total scored','coral')}${kpi('Assists',stats.assists,'Total created','mint')}${kpi('Average rating',stats.rating===null?'—':stats.rating.toFixed(1),'Recorded matches only','blue')}</div>
+          <div class="roster-stats-section"><h3>Player statistics<span>.</span></h3><p>Saved-match totals, with any manually entered season totals taking precedence.</p></div>
           <div class="roster-profile-stats-grid">
           ${statPanel('Attack',[['Goals',stats.goals],['Assists',stats.assists],['Shots on target',stats.shotsOn],['Shot accuracy',stats.shotPct]])}
           ${statPanel('Possession',[['Passes completed',number(stats.passes)],['Pass completion',stats.passPct],['Dribbles completed',number(stats.dribbles)],['Dribble completion',stats.dribblePct],['Possession lost',number(stats.turnovers)]])}
           ${statPanel('Defending',[['Successful tackles',number(stats.tackles)],['Interceptions',number(stats.interceptions)],['Blocked shots',number(stats.blocks)],['Ball recoveries',number(stats.recoveries)]])}
           ${statPanel('Playing time',[['Appearances',stats.apps],['Minutes played',number(stats.minutes)],['Average rating',stats.rating===null?'—':stats.rating.toFixed(1)],['Key passes',number(stats.keyPasses)]])}
           </div>
+          <details class="roster-all-events"><summary>View all 40 season statistics</summary><div class="roster-all-event-grid">${global.RatingEngine.GROUPS.map(g=>`<div class="roster-all-event-group"><h4>${clean(g.title)}</h4>${g.events.map(([key,label])=>`<div><span>${clean(label)}${Object.prototype.hasOwnProperty.call(stats.manual,key)?' <small>Manual</small>':''}</span><strong>${number(stats.allEvents[key])}</strong></div>`).join('')}</div>`).join('')}</div></details>
           ${latest}
         </div>
       </div>`;
   }
+  root.addEventListener('change',event=>{if(event.target.matches('[data-roster-season]') && global.RosterView.onChangeSeason)global.RosterView.onChangeSeason(event.target.value);});
   root.addEventListener('click',event=>{
+    const edit=event.target.closest('[data-season-edit-player]');
+    if(edit){if(global.RosterView.onEditSeasonStats)global.RosterView.onEditSeasonStats(edit.dataset.seasonEditPlayer,seasonId);return;}
     const selected=event.target.closest('[data-roster-player]');
     if(selected){selectedId=selected.dataset.rosterPlayer;const player=players.find(p=>p.id===selectedId);if(player){renderProfile(player);window.scrollTo({top:0,behavior:'instant'});}return;}
     const filter=event.target.closest('[data-roster-filter]');
@@ -128,6 +143,12 @@
   });
   global.RosterView={
     players,
-    render(matches){allMatches=Array.isArray(matches)?matches:[];const player=players.find(p=>p.id===selectedId);if(player)renderProfile(player);else renderIndex();}
+    render(matches, selectedSeason, manual, catalog){
+      allMatches=Array.isArray(matches)?matches:[];
+      if(selectedSeason)seasonId=String(selectedSeason);
+      manualSeasonStats=manual||{};
+      seasons=Array.isArray(catalog)?catalog:[];
+      const player=players.find(p=>p.id===selectedId);if(player)renderProfile(player);else renderIndex();
+    }
   };
 })(window);

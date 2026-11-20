@@ -1,6 +1,6 @@
 // Indoor Rating Studio V3 Beta: static offline assets only.
 // Bump CACHE_NAME when changing the app's offline asset set.
-const CACHE_NAME = 'indoor-studio-v3-beta-nomads-team-16';
+const CACHE_NAME = 'indoor-studio-v3-beta-nomads-seasons-17';
 const APP_FILES = [
   './',
   './index.html',

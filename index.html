@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="roster.css">
   <link rel="stylesheet" href="mobile.css" media="screen and (max-width: 700px)">
   <link rel="stylesheet" href="roster-redesign.css?v=roster-sleek-11">
-  <link rel="stylesheet" href="team-theme.css?v=nomads-layout-16">
+  <link rel="stylesheet" href="team-theme.css?v=nomads-season-17">
 </head>
 <body>
   <div class="app-shell">
@@ -75,6 +75,7 @@
                   <label class="field"><span>Team name</span><input id="team" maxlength="90" type="text" value="Northland Nomads" placeholder="Your team" autocomplete="off"></label>
                   <label class="field"><span>Opponent</span><input id="opponent" maxlength="90" type="text" placeholder="Who did you play?" autocomplete="off"></label>
                   <label class="field"><span>Match date</span><input id="date" type="date"></label>
+                  <label class="field"><span>Season</span><select id="matchSeason" aria-label="Season for this match"></select></label>
                   <label class="field"><span>Position</span><select id="position"><option value="forward">Forward</option><option value="midfielder" selected>Midfielder</option><option value="defender">Defender</option><option value="keeper">Goalkeeper</option><option value="mixed">Mixed positions</option></select></label>
                   <label class="field"><span>Minutes played</span><div class="suffix-input"><input id="minutes" type="number" min="0" max="50" step="1" value="25"><span>/ 50</span></div></label>
                   <label class="field field-span"><span>Result</span><select id="result"><option value="none">Not recorded</option><option value="win">Win</option><option value="draw">Draw</option><option value="loss">Loss</option></select></label>
@@ -116,12 +117,14 @@
 
         <section id="view-library" class="view" aria-label="Saved match library" hidden>
           <div class="page-heading"><div><div class="eyebrow">NORTHLAND NOMADS · MATCH ARCHIVE</div><h1>Match <em>library.</em></h1><p>Every performance, saved and ready to review.</p></div><div class="heading-actions"><button class="btn btn-secondary" type="button" id="libraryExportCSV">Export all CSV ↗</button><button class="btn btn-primary" type="button" id="libraryNew">＋ Track a match</button></div></div>
+          <div class="season-view-selector"><label>VIEW SEASON <select class="season-view-select" aria-label="Filter library by season"></select></label><span class="season-view-note" aria-live="polite"></span></div>
           <div id="libraryStats" class="library-summary"></div>
           <section class="surface library-panel"><div class="section-header"><div><div class="section-eyebrow">ALL PERFORMANCES</div><h3>Recorded matches</h3></div><span class="header-aside" id="libraryCount">0 matches</span></div><div class="library-toolbar"><label class="field search-field"><span>SEARCH LIBRARY</span><input id="librarySearch" type="search" placeholder="Search players, teams, opponents..."></label><label class="field sort-field"><span>SORT</span><select id="librarySort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="rating">Highest rating</option><option value="player">Player A–Z</option></select></label></div><div id="libraryList" class="library-list"></div></section>
         </section>
 
         <section id="view-analytics" class="view" aria-label="Match analytics" hidden>
           <div class="page-heading"><div><div class="eyebrow">NORTHLAND NOMADS · SEASON REVIEW</div><h1>Player <em>analytics.</em></h1><p>Spot trends across your recorded matches.</p></div></div>
+          <div class="season-view-selector"><label>VIEW SEASON <select class="season-view-select" aria-label="Filter analytics by season"></select></label><span class="season-view-note" aria-live="polite"></span></div>
           <div id="analyticsKpis" class="analytics-kpis"></div>
           <div class="analytics-grid"><section class="surface analytics-chart"><div class="section-header"><div><div class="section-eyebrow">RATING HISTORY</div><h3>Recent performances</h3></div><span class="header-aside">Last 12 matches</span></div><div id="ratingChart" class="rating-chart"></div></section><section class="surface analytics-recent"><div class="section-header"><div><div class="section-eyebrow">FORM GUIDE</div><h3>Top performances</h3></div></div><div id="topPerformances"></div></section></div>
           <p class="small-footnote">Analysis is based on the saved matches currently in this browser. Import a backup to bring back exported history.</p>
@@ -129,8 +132,10 @@
 
         <section id="view-data" class="view" aria-label="Data management and settings" hidden>
           <div class="page-heading"><div><div class="eyebrow">NORTHLAND NOMADS · TEAM SETTINGS</div><h1>Data & <em>settings.</em></h1><p>Keep the records, make the formula yours.</p></div></div>
-          <div class="data-grid"><section class="surface data-card"><div class="data-icon mint">↗</div><div class="section-eyebrow">PORTABLE BACKUPS</div><h3>Export your data.</h3><p>Download a complete JSON backup for importing later, or a spreadsheet-ready CSV with every tracked event.</p><button id="exportJSON" class="btn btn-primary btn-full" type="button">Export complete JSON backup ↗</button><button id="exportCSV" class="btn btn-secondary btn-full" type="button">Export library CSV ↗</button><small>Includes all tracked event counts (even zero), match ratings and event weights.</small></section>
-          <section class="surface data-card"><div class="data-icon lilac">↙</div><div class="section-eyebrow">RESTORE YOUR HISTORY</div><h3>Import performances.</h3><p>Restore a team JSON backup or a library CSV previously exported by this app.</p><label class="field"><span>IMPORT MODE</span><select id="importMode"><option value="merge">Merge matches (recommended)</option><option value="replace">Replace entire match library</option></select></label><button id="importButton" class="btn btn-primary btn-full" type="button">Choose JSON / CSV to import ↗</button><input type="file" accept=".json,.csv,application/json,text/csv" id="importFile" hidden><small>Merge matches by ID. Replace overwrites your existing library after confirmation.</small></section></div>
+          <section class="surface season-manager" id="seasonManagement"><div class="section-header"><div><div class="section-eyebrow">SEASON ARCHIVES</div><h3>Season management</h3></div><button class="btn btn-primary" id="createNextSeason" type="button">Start next season ↗</button></div><p class="section-subtitle">Your archived matches and player totals stay intact when you start a new season. The current season begins with empty statistics.</p><div id="seasonCards" class="season-cards"></div></section>
+          <section class="surface manual-season-panel" id="manualSeasonPanel"><div class="section-header"><div><div class="section-eyebrow">HISTORICAL STATISTICS</div><h3>Enter season totals</h3></div></div><p class="section-subtitle">Enter totals you know for a player without creating artificial match ratings. Leave a field blank to use saved-match totals; entering 0 explicitly overrides that statistic. Average ratings still come only from individually saved matches.</p><div class="manual-season-pickers"><label class="field"><span>SEASON</span><select id="manualSeason"></select></label><label class="field"><span>PLAYER</span><select id="manualPlayer"></select></label></div><div id="manualSeasonFields"></div><div class="manual-season-actions"><button class="btn btn-primary" type="button" id="saveManualSeason">Save season totals</button><button class="btn btn-secondary" type="button" id="clearManualSeason">Clear manual overrides</button><span id="manualSeasonStatus" role="status"></span></div></section>
+          <div class="data-grid"><section class="surface data-card"><div class="data-icon mint">↗</div><div class="section-eyebrow">PORTABLE BACKUPS</div><h3>Export your data.</h3><p>Download a complete JSON backup for importing later, or a spreadsheet-ready CSV with every tracked event.</p><button id="exportJSON" class="btn btn-primary btn-full" type="button">Export complete JSON backup ↗</button><button id="exportCSV" class="btn btn-secondary btn-full" type="button">Export library CSV ↗</button><small>Includes all matches, season assignments, archived seasons, manual season totals, and rating weights.</small></section>
+          <section class="surface data-card"><div class="data-icon lilac">↙</div><div class="section-eyebrow">RESTORE YOUR HISTORY</div><h3>Import performances.</h3><p>Restore a team JSON backup or a library CSV previously exported by this app.</p><label class="field"><span>IMPORT MODE</span><select id="importMode"><option value="merge">Merge matches (recommended)</option><option value="replace">Replace entire match library</option></select></label><button id="importButton" class="btn btn-primary btn-full" type="button">Choose JSON / CSV to import ↗</button><input type="file" accept=".json,.csv,application/json,text/csv" id="importFile" hidden><small>Merge keeps existing data and combines seasons. Replace overwrites existing matches and manual season totals after confirmation.</small></section></div>
           <section class="surface weights-panel"><div class="section-header"><div><div class="section-eyebrow">RATING ENGINE</div><h3>Customize the weights<span class="title-point">.</span></h3></div><button id="resetWeights" class="btn btn-secondary" type="button">Restore defaults ↺</button></div><p class="section-subtitle">V3 Beta MASL-informed baseline: most original weights remain proportionally scaled by 0.63636×. Shooting uses the agreed indoor values (goal +0.70, ordinary miss −0.025, blocked attempt 0.00). Position multipliers still apply. Previously saved matches keep their saved weights.</p><div class="weight-header"><span>EVENT</span><span>POINT VALUE</span></div><div id="weightList"></div><div class="settings-note">Rating = 6.5 + sum(event count × event weight × position multiplier), limited to 3.0–10.0. MASL provides scoring frequency benchmarks, not passing/dribbling weights or official player-rating points. These proportional values are a customizable starting model, not MASL or SofaScore ratings.</div></section>
           <section class="surface data-warning"><div><h3>Storage information</h3><p>For local files opened with <code>file://</code>, browser storage behavior can vary. The app saves locally when permitted, but JSON exports are your portable backup. Use the same browser and file location when reopening.</p></div><span id="storageIndicator" class="storage-tag">Checking browser storage</span></section>
         </section>
@@ -148,7 +153,7 @@
           <div class="method-disclaimer"><span>ⓘ</span><p><strong>Model status: V3 Beta.</strong> This is an independent, adjustable, MASL-informed arena soccer model, not an official MASL, SofaScore or FotMob match rating. MASL uses 60-minute stop-clock matches; this application targets 50-minute recreational matches. Recalibrate with complete local observations before treating ratings as validated comparisons.</p></div>
         </section>
       </main>
-      <footer class="app-footer"><span>NORTHLAND NOMADS <span>· 2026/27</span></span><span>TEAM PERFORMANCE <i>✳</i> LOCAL DATA</span></footer>
+      <footer class="app-footer"><span>NORTHLAND NOMADS <span>· SEASON ARCHIVES</span></span><span>TEAM PERFORMANCE <i>✳</i> LOCAL DATA</span></footer>
     </div>
   </div>
 
@@ -157,9 +162,9 @@
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <script src="ratings.js"></script>
-  <script src="storage.js"></script>
-  <script src="roster.js?v=roster-sleek-11"></script>
-  <script src="script.js"></script>
+  <script src="storage.js?v=nomads-season-17"></script>
+  <script src="roster.js?v=nomads-season-17"></script>
+  <script src="script.js?v=nomads-season-17"></script>
   <script src="pwa.js" defer></script>
   <script src="mobile-nav.js" defer></script>
 </body>

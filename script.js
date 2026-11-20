@@ -8,6 +8,7 @@
   const loaded = S.load();
   const state = loaded.state;
   const today = S.TODAY();
+  Object.assign(state,S.normalizeSeasonState(state));
   const escapeHTML = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const nfmt = (value, digits=2) => (value >= 0 ? '+' : '') + Number(value).toFixed(digits);
   const pct = value => Math.min(100,Math.max(0,value));
@@ -19,11 +20,12 @@
   let currentView='studio';
   let advancedPassingOpen=false;
   function freshDraft(last) {
-    return { id:null, player:(last && last.player)||'Zava', team:(last && last.team)||'Northland Nomads', opponent:'', date:today,
+    return { id:null, seasonId:state.activeSeasonId, player:(last && last.player)||'Zava', team:(last && last.team)||'Northland Nomads', opponent:'', date:today,
       position:(last && last.position)||'midfielder', positionShares:E.cleanPositionShares(last && last.positionShares), minutes:25, result:'none', stats:E.defaultStats() };
   }
   if (!state.draft || typeof state.draft!=='object') state.draft = freshDraft();
   state.draft = { ...freshDraft(), ...state.draft, positionShares:E.cleanPositionShares(state.draft.positionShares), stats:E.cleanStats(state.draft.stats) };
+  state.draft.seasonId=state.matches.find(m=>m.id===state.draft.id)?.seasonId || (S.validSeason(state.draft.seasonId)&&state.seasons.some(item=>item.id===state.draft.seasonId)?state.draft.seasonId:state.activeSeasonId);
   state.weights = E.cleanWeights(state.weights);
   const fields=['player','team','opponent','date','position','minutes','result'];
 
@@ -43,6 +45,8 @@
   function hydrateFields() {
     fields.forEach(id=>{const input=$(id);if(input)input.value=state.draft[id] ?? '';});
     $('minutes').value=state.draft.minutes;
+    renderSeasonControls();
+    $('matchSeason').value=state.draft.seasonId;
     $('date').value=state.draft.date;
     E.POSITION_KEYS.forEach(k=>{$('split-'+k).value=state.draft.positionShares[k];});
     renderPositionSplit();
@@ -50,6 +54,7 @@
   }
   function readFields() {
     fields.forEach(id=>{let val=$(id).value; if(id==='minutes')val=Math.max(0,Math.min(50,Number(val)||0));state.draft[id]=val;});
+    state.draft.seasonId=S.validSeason($('matchSeason').value)||state.activeSeasonId;
     if(!['forward','midfielder','defender','keeper','mixed'].includes(state.draft.position))state.draft.position='midfielder';
     if(!['win','draw','loss','none'].includes(state.draft.result))state.draft.result='none';
   }
@@ -246,15 +251,90 @@
     $('methodGroups').dataset.initialized='true';
     $('methodMatches').textContent=matched+' definition'+(matched===1?'':'s');
   }
+  // Season selection changes what is displayed; it never deletes or resets saved records.
+  function seasonOptions(selected){
+    return state.seasons.map(season=>`<option value="${escapeHTML(season.id)}" ${season.id===selected?'selected':''}>${escapeHTML(season.name)}${season.archived?' (Archive)':''}</option>`).join('');
+  }
+  function renderSeasonControls(){
+    document.querySelectorAll('.season-view-select').forEach(select=>{
+      if(document.activeElement===select)return;
+      select.innerHTML=seasonOptions(state.viewSeasonId);
+    });
+    document.querySelectorAll('.season-view-note').forEach(el=>{
+      el.textContent=state.viewSeasonId===state.activeSeasonId?'Active season · New statistics':'Archived season · Historical statistics';
+    });
+    const match=$('matchSeason');
+    if(match && document.activeElement!==match){match.innerHTML=seasonOptions(state.draft.seasonId);match.value=state.draft.seasonId;}
+  }
+  function setViewSeason(id){
+    if(!state.seasons.some(season=>season.id===id))return;
+    state.viewSeasonId=id;
+    persist();renderSeasonControls();
+    if(currentView==='roster')window.RosterView.render(state.matches,id,state.manualSeasonStats,state.seasons);
+    if(currentView==='library')renderLibrary();
+    if(currentView==='analytics')renderAnalytics();
+    if(currentView==='data'){renderSeasonManager();$('manualSeason').value=id;renderManualSeasonEditor();}
+  }
+  function renderSeasonManager(){
+    const cards=$('seasonCards');
+    cards.innerHTML=state.seasons.map(season=>{
+      const count=state.matches.filter(m=>m.seasonId===season.id).length;
+      const manual=Object.keys(state.manualSeasonStats[season.id]||{}).length;
+      const current=season.id===state.activeSeasonId;
+      return `<div class="season-card ${current?'season-card-active':''}"><div class="season-card-label">${current?'CURRENT SEASON':'SEASON ARCHIVE'}</div><strong>${escapeHTML(season.name)}</strong><p>${count} saved ${count===1?'match':'matches'} · ${manual} manual player ${manual===1?'entry':'entries'}</p><button type="button" class="btn btn-secondary" data-manage-view-season="${season.id}">${season.id===state.viewSeasonId?'Viewing season':'View season'}</button></div>`;
+    }).join('');
+  }
+  function renderManualSeasonEditor(){
+    const playerSelect=$('manualPlayer');
+    const seasonSelect=$('manualSeason');
+    if(!playerSelect.options.length){
+      playerSelect.innerHTML=window.RosterView.players.map(p=>`<option value="${escapeHTML(p.id)}">${escapeHTML(p.name)}</option>`).join('');
+    }
+    const prev=state.seasons.some(season=>season.id===seasonSelect.value)?seasonSelect.value:state.viewSeasonId;
+    seasonSelect.innerHTML=seasonOptions(prev);
+    const current=(state.manualSeasonStats[seasonSelect.value]||{})[playerSelect.value]||{};
+    const inputRow=(key,label)=>`<label class="manual-stat-field"><span>${escapeHTML(label)}</span><input type="number" inputmode="numeric" min="0" max="999999" step="1" data-manual-key="${escapeHTML(key)}" value="${Object.prototype.hasOwnProperty.call(current,key)?current[key]:''}" placeholder="—"></label>`;
+    $('manualSeasonFields').innerHTML=`<div class="manual-stat-core">${inputRow('appearances','Appearances')}${inputRow('minutes','Minutes played')}</div><div class="manual-stat-groups">${E.GROUPS.map((g,i)=>`<details class="manual-stat-group" ${i===0?'open':''}><summary>${escapeHTML(g.title)} <span>${g.events.length} metrics</span></summary><div class="manual-stat-grid">${g.events.map(([key,label])=>inputRow(key,label)).join('')}</div></details>`).join('')}</div>`;
+    $('manualSeasonStatus').textContent=`${Object.keys(current).length} manually entered fields · blanks use saved matches`;
+  }
+  function saveManualSeason(){
+    const season=$('manualSeason').value,player=$('manualPlayer').value;
+    const values={};
+    for(const input of $('manualSeasonFields').querySelectorAll('[data-manual-key]')){
+      const v=input.value.trim();if(!v)continue;
+      const n=Number(v);
+      if(!Number.isInteger(n) || n<0 || n>999999){notify('Season statistics must be whole numbers from 0 to 999999.',true);input.focus();return;}
+      values[input.dataset.manualKey]=n;
+    }
+    state.manualSeasonStats[season]??={};
+    if(Object.keys(values).length)state.manualSeasonStats[season][player]=values;
+    else delete state.manualSeasonStats[season][player];
+    if(!Object.keys(state.manualSeasonStats[season]).length)delete state.manualSeasonStats[season];
+    persist();renderSeasonManager();renderManualSeasonEditor();notify('Season totals saved. No match records or ratings were changed.');
+  }
+  function startNextSeason(){
+    const old=state.activeSeasonId;
+    const next=String(Number(old)+1);
+    if(!S.validSeason(next)){notify('Season limit reached.',true);return;}
+    const currentMatches=state.matches.filter(m=>m.seasonId===old).length;
+    if(!window.confirm(`Archive ${S.seasonName(old)} (${currentMatches} saved matches) and start ${S.seasonName(next)}? Existing records and manual totals remain available. Export a backup first for extra safety.`))return;
+    state.seasons=state.seasons.map(s=>({...s,archived:s.id===old?true:s.archived}));
+    if(!state.seasons.some(s=>s.id===next))state.seasons.push({id:next,name:S.seasonName(next),archived:false});
+    state.activeSeasonId=next;state.viewSeasonId=next;
+    Object.assign(state,S.normalizeSeasonState(state));
+    if(!state.draft.id && !E.EVENTS.some(ev=>state.draft.stats[ev.key]))state.draft.seasonId=next;
+    hydrateFields();renderSeasonControls();renderSeasonManager();renderManualSeasonEditor();persist();
+    notify(`${S.seasonName(next)} is active. Previous seasons are preserved.`);
+  }
   function showView(view) {
     if(!['studio','roster','library','analytics','data','methodology'].includes(view))return;
     currentView=view;
     document.querySelectorAll('.view').forEach(el=>{el.hidden=el.id!=='view-'+view;el.classList.toggle('active',!el.hidden);});
     document.querySelectorAll('[data-view]').forEach(btn=>btn.classList.toggle('selected',btn.dataset.view===view));
-    if(view==='roster' && window.RosterView)window.RosterView.render(state.matches);
+    if(view==='roster' && window.RosterView)window.RosterView.render(state.matches,state.viewSeasonId,state.manualSeasonStats,state.seasons);
     if(view==='library')renderLibrary();
     if(view==='analytics')renderAnalytics();
-    if(view==='data')renderWeights();
+    if(view==='data'){renderWeights();renderSeasonManager();renderManualSeasonEditor();}
     if(view==='methodology')renderMethodology();
     window.scrollTo({top:0,behavior:'instant'});
   }
@@ -304,6 +384,7 @@
         <div class="report-summary-line"><span class="report-summary-label">Opponent</span><strong>${escapeHTML(m.opponent||'—')}</strong></div>
       </div>
       <div class="report-summary-card report-summary-meta">
+        <div class="report-summary-line"><span class="report-summary-label">Season</span><strong>${escapeHTML(S.seasonName(m.seasonId))}</strong></div>
         <div class="report-summary-line"><span class="report-summary-label">Match date</span><strong>${escapeHTML(m.date)}</strong></div>
         <div class="report-summary-line"><span class="report-summary-label">Minutes</span><strong>${escapeHTML(m.minutes+' / 50 min')}</strong></div>
         <div class="report-summary-line"><span class="report-summary-label">Position</span><strong>${escapeHTML(formatPosition(m.position,m.positionShares))}</strong></div>
@@ -366,47 +447,109 @@
   function summaryHTML(label,value,detail) {return `<div class="summary-tile"><span>${label}</span><strong>${value}</strong><small>${detail}</small></div>`;}
   function avgRating(list) {return list.length?(list.reduce((t,m)=>t+m.rating,0)/list.length).toFixed(1):'—';}
   function totals() {
-    return {matches:state.matches.length,goals:state.matches.reduce((n,m)=>n+m.stats.goals,0),assists:state.matches.reduce((n,m)=>n+m.stats.assists,0),minutes:state.matches.reduce((n,m)=>n+m.minutes,0)};
+    const matches=matchesForSelectedSeason();
+    return {matches:matches.length,goals:matches.reduce((n,m)=>n+m.stats.goals,0),assists:matches.reduce((n,m)=>n+m.stats.assists,0),minutes:matches.reduce((n,m)=>n+m.minutes,0)};
   }
+  function matchesForSelectedSeason(){return state.matches.filter(m=>m.seasonId===state.viewSeasonId);}
   function dateLabel(d){const parsed=new Date(d+'T12:00:00');return Number.isNaN(parsed.getTime())?d:parsed.toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'});}
   function renderLibrary() {
     const t=totals();
-    $('libraryStats').innerHTML=summaryHTML('TOTAL MATCHES',t.matches,'Saved performances')+summaryHTML('AVERAGE RATING',avgRating(state.matches),'Across saved matches')+summaryHTML('TOTAL GOALS',t.goals,'Recorded goals')+summaryHTML('TOTAL ASSISTS',t.assists,'Recorded assists');
-    $('libraryCount').textContent=`${state.matches.length} matches`;
-    let matches=state.matches.filter(m=>`${m.player} ${m.team} ${m.opponent}`.toLowerCase().includes($('librarySearch').value.toLowerCase().trim()));
+    $('libraryStats').innerHTML=summaryHTML('TOTAL MATCHES',t.matches,'Saved performances')+summaryHTML('AVERAGE RATING',avgRating(matchesForSelectedSeason()),'Across saved matches')+summaryHTML('TOTAL GOALS',t.goals,'Recorded goals')+summaryHTML('TOTAL ASSISTS',t.assists,'Recorded assists');
+    $('libraryCount').textContent=`${t.matches} matches`;
+    let matches=matchesForSelectedSeason().filter(m=>`${m.player} ${m.team} ${m.opponent}`.toLowerCase().includes($('librarySearch').value.toLowerCase().trim()));
     const sort=$('librarySort').value;
     matches=[...matches].sort((a,b)=>sort==='oldest'?a.date.localeCompare(b.date):sort==='rating'?b.rating-a.rating:sort==='player'?a.player.localeCompare(b.player):b.date.localeCompare(a.date));
     $('libraryList').innerHTML=matches.length?matches.map(m=>`<div class="library-item"><div class="library-item-main"><div class="record-avatar">${escapeHTML((m.player||'P').slice(0,2).toUpperCase())}</div><div><div class="record-title">${escapeHTML(m.player)} <span style="color:#8999b4;font-weight:500">vs ${escapeHTML(m.opponent||'Unknown')}</span></div><div class="record-sub">${dateLabel(m.date)} · ${escapeHTML(formatPosition(m.position,m.positionShares))} · ${m.minutes} min · ${m.stats.goals}G ${m.stats.assists}A</div></div></div><div class="record-right"><strong class="record-rating ${m.rating<6?'low':''}">${m.rating.toFixed(1)}</strong><button class="small-btn" type="button" data-report="${escapeHTML(m.id)}">Report</button><button class="small-btn" type="button" data-edit="${escapeHTML(m.id)}">Edit</button><button class="small-btn delete" type="button" data-delete="${escapeHTML(m.id)}">Delete</button></div></div>`).join(''):`<div class="empty-state"><div class="empty-orbit">◈</div><strong>No matches found</strong><p>Save a performance in Match Studio, or import an earlier backup.</p><button class="btn btn-primary" type="button" id="emptyNewMatch">Open studio ↗</button></div>`;
     const empty=$('emptyNewMatch');if(empty)empty.addEventListener('click',()=>showView('studio'));
   }
+  function effectiveSeasonTotals(){
+    const games=matchesForSelectedSeason();
+    const manual=state.manualSeasonStats[state.viewSeasonId]||{};
+    const known=new Set();
+    const result={goals:0,assists:0,minutes:0};
+    window.RosterView.players.forEach(player=>{
+      const key=player.id;known.add(key);
+      const recorded=games.filter(game=>S.playerKey(game.player)===key);
+      const overrides=manual[key]||{};
+      ['goals','assists','minutes'].forEach(metric=>{
+        const recordedTotal=recorded.reduce((sum,game)=>sum+(metric==='minutes'?game.minutes:Number(game.stats[metric]||0)),0);
+        result[metric]+=Object.prototype.hasOwnProperty.call(overrides,metric)?overrides[metric]:recordedTotal;
+      });
+    });
+    games.filter(game=>!known.has(S.playerKey(game.player))).forEach(game=>{
+      result.goals+=Number(game.stats.goals)||0;
+      result.assists+=Number(game.stats.assists)||0;
+      result.minutes+=Number(game.minutes)||0;
+    });
+    return result;
+  }
   function renderAnalytics() {
-    const t=totals();
-    const all=state.matches;const scored=all.filter(m=>m.rating>=7).length;
-    $('analyticsKpis').innerHTML=summaryHTML('AVERAGE RATING',avgRating(all),'All saved games')+summaryHTML('HIGH-RATED GAMES',scored,'Ratings of 7.0 or higher')+summaryHTML('GOAL INVOLVEMENTS',t.goals+t.assists,`${t.goals} goals · ${t.assists} assists`)+summaryHTML('MINUTES PLAYED',t.minutes,'Across all saved games');
+    const t=effectiveSeasonTotals();
+    const all=matchesForSelectedSeason();const scored=all.filter(m=>m.rating>=7).length;
+    $('analyticsKpis').innerHTML=summaryHTML('AVERAGE RATING',avgRating(all),'Recorded match ratings')+summaryHTML('HIGH-RATED GAMES',scored,'Ratings of 7.0 or higher')+summaryHTML('GOAL INVOLVEMENTS',t.goals+t.assists,`${t.goals} goals · ${t.assists} assists`)+summaryHTML('MINUTES PLAYED',t.minutes,'Including manual season totals');
     const recent=[...all].sort((a,b)=>a.date.localeCompare(b.date)).slice(-12);
     $('ratingChart').innerHTML=recent.length?recent.map(m=>{const h=pct((m.rating-3)/7*100);return `<div class="chart-col" title="${escapeHTML(m.player)} · ${m.rating.toFixed(1)} vs ${escapeHTML(m.opponent||'Unknown')}"><span class="chart-value">${m.rating.toFixed(1)}</span><div class="chart-bar ${m.rating>=7?'green':''}" style="--h:${Math.max(2,h)}%"></div><div class="chart-label">${escapeHTML(m.player.split(' ')[0])}</div></div>`;}).join(''):'<div class="empty-state"><strong>No chart data yet</strong><p>Save matches to build your rating history.</p></div>';
     const best=[...all].sort((a,b)=>b.rating-a.rating).slice(0,5);
     $('topPerformances').innerHTML=best.length?best.map(m=>`<div class="top-record"><div><strong>${escapeHTML(m.player)}</strong><small>${dateLabel(m.date)} · ${escapeHTML(m.opponent||'Unknown opponent')}</small></div><div class="top-record-score">${m.rating.toFixed(1)}</div></div>`).join(''):'<div class="empty-state"><p>Top performances will appear here.</p></div>';
   }
-  function exportAllJSON(){S.download('indoor-rating-studio-backup.json',JSON.stringify(S.exportBackup(state),null,2),'application/json');notify('Full JSON backup exported. Keep this file somewhere safe.');}
-  function exportAllCSV(){S.download('indoor-rating-studio-library.csv',S.exportLibraryCSV(state.matches),'text/csv;charset=utf-8');notify('Library CSV exported with every statistic and saved weight.');}
+  function exportAllJSON(){S.download('northland-nomads-all-seasons-backup.json',JSON.stringify(S.exportBackup(state),null,2),'application/json');notify('Full JSON backup exported. Keep this file somewhere safe.');}
+  function exportAllCSV(){S.download('northland-nomads-match-library-all-seasons.csv',S.exportLibraryCSV(state.matches),'text/csv;charset=utf-8');notify('Match library CSV exported across every season. For manual season totals, use the JSON backup.');}
   async function performImport(file) {
     if(!file)return;
-    if(file.size>10*1024*1024){notify('This file is over 10 MB. Select a smaller backup.',true);return;}
+    if(file.size>15*1024*1024){notify('This file is over 15 MB. Select a smaller backup.',true);return;}
     try{
       const parsed=S.importData(await file.text(),file.name);
-      if(!parsed.matches.length){notify('The selected backup contains no matches to import.',true);return;}
+      const hasManual=parsed.manualSeasonStats && Object.keys(parsed.manualSeasonStats).length>0;
+      if(!parsed.matches.length && !hasManual){notify('No match or manual season records found in this file.',true);return;}
       const replace=$('importMode').value==='replace';
-      if(replace && !window.confirm(`Replace your current ${state.matches.length} saved match(es) with ${parsed.matches.length} imported match(es)? Export a backup first if needed.`))return;
-      if(replace){state.matches=parsed.matches;if(parsed.weights)state.weights=parsed.weights;state.draft.id=null;}
-      else{const byId=new Map(state.matches.map(m=>[m.id,m]));parsed.matches.forEach(m=>byId.set(m.id,m));state.matches=[...byId.values()];}
+      if(replace && !window.confirm(`Replace ${state.matches.length} existing matches AND your manual season totals? Export your full JSON backup first. This will import ${parsed.matches.length} matches.`))return;
+      if(replace){
+        state.matches=parsed.matches;
+        if(parsed.weights)state.weights=parsed.weights;
+        state.draft.id=null;
+        Object.assign(state,S.normalizeSeasonState({matches:state.matches,seasons:parsed.seasons,activeSeasonId:parsed.activeSeasonId,viewSeasonId:parsed.viewSeasonId,manualSeasonStats:parsed.manualSeasonStats}));
+        state.draft.seasonId=state.activeSeasonId;
+      }else{
+        const byId=new Map(state.matches.map(m=>[m.id,m]));
+        parsed.matches.forEach(m=>byId.set(m.id,m));state.matches=[...byId.values()];
+        const seasons=[...state.seasons,...(parsed.seasons||[])];
+        const manual=structuredClone(state.manualSeasonStats);
+        Object.entries(parsed.manualSeasonStats||{}).forEach(([season,players])=>{
+          manual[season]??={};
+          Object.entries(players).forEach(([player,stats])=>{manual[season][player]={...(manual[season][player]||{}),...stats};});
+        });
+        Object.assign(state,S.normalizeSeasonState({...state,matches:state.matches,seasons,manualSeasonStats:manual}));
+      }
       state.matches.sort((a,b)=>b.date.localeCompare(a.date));
-      renderEvents();renderLive();persist();showView('library');
-      notify(`Imported ${parsed.matches.length} match(es) from ${parsed.source}. Library now has ${state.matches.length}.`);
+      hydrateFields();renderEvents();renderLive();renderSeasonControls();persist();showView('library');
+      notify(`Imported ${parsed.matches.length} matches and ${hasManual?'manual season totals':'season metadata'} from ${parsed.source}.`);
     }catch(error){notify('Import failed: '+error.message,true);}
     finally{$('importFile').value='';}
   }
   document.querySelectorAll('[data-view]').forEach(btn=>btn.addEventListener('click',()=>showView(btn.dataset.view)));
+  window.RosterView.onChangeSeason=setViewSeason;
+  window.RosterView.onEditSeasonStats=(playerId,seasonId)=>{
+    showView('data');
+    $('manualSeason').value=seasonId;
+    $('manualPlayer').value=playerId;
+    renderManualSeasonEditor();
+    $('manualSeasonPanel').scrollIntoView({behavior:'smooth',block:'start'});
+  };
+  document.querySelectorAll('.season-view-select').forEach(select=>select.addEventListener('change',event=>setViewSeason(event.target.value)));
+  $('matchSeason').addEventListener('change',event=>{state.draft.seasonId=event.target.value;persist();});
+  $('seasonCards').addEventListener('click',event=>{const target=event.target.closest('[data-manage-view-season]');if(target)setViewSeason(target.dataset.manageViewSeason);});
+  $('createNextSeason').addEventListener('click',startNextSeason);
+  $('manualSeason').addEventListener('change',renderManualSeasonEditor);
+  $('manualPlayer').addEventListener('change',renderManualSeasonEditor);
+  $('saveManualSeason').addEventListener('click',saveManualSeason);
+  $('clearManualSeason').addEventListener('click',()=>{
+    const season=$('manualSeason').value,player=$('manualPlayer').value;
+    if(!((state.manualSeasonStats[season]||{})[player]))return;
+    if(!window.confirm('Clear all manual season overrides for this player? Saved match records remain unchanged.'))return;
+    delete state.manualSeasonStats[season][player];
+    if(!Object.keys(state.manualSeasonStats[season]).length)delete state.manualSeasonStats[season];
+    persist();renderManualSeasonEditor();renderSeasonManager();notify('Manual season overrides cleared. Saved match totals are unchanged.');
+  });
   $('methodSearch').addEventListener('input',renderMethodology);
   $('methodExpand').addEventListener('click',()=>$('methodGroups').querySelectorAll('details').forEach(d=>d.open=true));
   $('methodCollapse').addEventListener('click',()=>$('methodGroups').querySelectorAll('details').forEach(d=>d.open=false));
@@ -476,6 +619,6 @@
   $('reportCSV').addEventListener('click',()=>{if(!reportMatch)return;S.download(reportFilename('csv'),S.exportReportCSV(reportMatch),'text/csv;charset=utf-8');notify('Complete event-by-event report CSV exported.');});
   $('reportJSON').addEventListener('click',()=>{if(!reportMatch)return;S.download(reportFilename('json'),JSON.stringify({type:'indoor-rating-studio-match',version:1,exportedAt:new Date().toISOString(),match:reportMatch},null,2),'application/json');notify('Match JSON exported. You can import this file later.');});
   $('reportPrint').addEventListener('click',()=>window.print());
-  hydrateFields();renderEvents();renderLive();renderLibrary();renderAnalytics();persist();
+  hydrateFields();renderEvents();renderLive();renderSeasonControls();renderLibrary();renderAnalytics();persist();
   if (loaded.migratedWeights) notify(`Updated ${loaded.migratedWeights} legacy default weights to the V3 Beta indoor calibration. Saved match reports were not changed.`);
 })();

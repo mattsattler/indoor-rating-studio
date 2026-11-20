@@ -490,3 +490,64 @@ body:has(#view-roster.active) .sidebar .brand.team-brand {
   .report-summary-card,.report-kpi-card,.report-card{break-inside:avoid;page-break-inside:avoid}
   .report-rating-panel,.report-card-total,.report-summary-card,.report-kpi-card,.report-table.modern th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
+
+/* Season archives, roster season switcher, and manual historical totals. */
+.season-view-selector{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;padding:16px 18px;margin-bottom:18px;border:1px solid #e0e6ed;background:#fff;border-radius:12px;box-shadow:0 5px 18px rgba(22,35,58,.03)}
+.season-view-selector label,.roster-season-control{display:flex;align-items:center;gap:12px;color:#66768b;font-size:10px;font-weight:900;letter-spacing:.13em}
+.season-view-selector select,.roster-season-control select{appearance:auto;min-height:41px;max-width:100%;min-width:174px;padding:7px 30px 7px 12px;border:1px solid #d9e0e9;border-radius:9px;background:#fff;color:#1b2940;font-size:12px;font-weight:800;letter-spacing:0}
+.season-view-note{color:#74849a;font-size:11px;font-weight:650}
+#view-roster .roster-season-control{flex-shrink:0;color:#758398}
+#view-roster .roster-season-control select{background:#fff}
+#view-roster .roster-profile-top{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+#view-roster .roster-profile-title{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#view-roster .roster-all-events{margin:25px 0 0;border:1px solid #e0e6ee;border-radius:14px;background:#fff;padding:15px 18px}
+#view-roster .roster-all-events summary{cursor:pointer;color:#213047;font-size:14px;font-weight:900}
+#view-roster .roster-all-event-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding-top:14px}
+#view-roster .roster-all-event-group{border:1px solid #e8edf2;border-radius:10px;padding:12px 13px;background:#fafbfd}
+#view-roster .roster-all-event-group h4{margin:0 0 9px;color:#e14852;font-size:13px}
+#view-roster .roster-all-event-group>div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-top:1px solid #e8edf2;padding:7px 0;font-size:11px;color:#64748a}
+#view-roster .roster-all-event-group strong{font-size:12px;color:#18263e}
+#view-roster .roster-all-event-group small{font-size:9px;color:#ca4b56;font-weight:800}
+.season-manager,.manual-season-panel{margin-bottom:20px}
+.season-manager>.section-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:13px}
+.season-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:13px;margin-top:19px}
+.season-card{border:1px solid #e0e7ef;border-radius:12px;background:#fbfcfe;padding:18px;display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+.season-card-active{background:linear-gradient(120deg,#fff9f9,#fff);border-color:#f2bfc4;border-left:4px solid #ed4853}
+.season-card-label{font-size:9px;letter-spacing:.14em;font-weight:900;color:#e54a54}
+.season-card strong{font-size:23px;letter-spacing:-.04em;color:#15233b}
+.season-card p{font-size:11px;color:#728198;margin:0;line-height:1.5}
+.season-card .btn{margin-top:5px;min-height:36px;padding:6px 13px;font-size:11px}
+.manual-season-pickers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:20px 0}
+.manual-season-pickers .field select{width:100%;max-width:none}
+.manual-stat-core,.manual-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px}
+.manual-stat-core{margin-bottom:15px}
+.manual-stat-field{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 12px;background:#fafbfd;border:1px solid #e5eaf1;border-radius:9px;color:#45556b;font-size:11px;font-weight:700}
+.manual-stat-field span{flex:1}
+.manual-stat-field input{width:75px;min-width:60px;padding:8px;border:1px solid #d7dfe8;border-radius:7px;background:#fff;color:#17263b;font-size:12px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+.manual-stat-field input:focus{outline:2px solid #ef4b56;outline-offset:1px}
+.manual-stat-field input::placeholder{color:#aab3c2}
+.manual-stat-groups{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.manual-stat-group{min-width:0;border:1px solid #e3e9f0;border-radius:10px;overflow:hidden;background:#fff}
+.manual-stat-group summary{padding:13px 15px;cursor:pointer;color:#1b2b42;font-size:13px;font-weight:900;background:#f7f9fc;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.manual-stat-group summary span{font-size:10px;font-weight:700;color:#8290a4}
+.manual-stat-grid{padding:12px;grid-template-columns:1fr}
+.manual-season-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:17px}
+#manualSeasonStatus{color:#687a90;font-size:11px;line-height:1.5}
+@media(max-width:900px){
+  .manual-stat-groups{grid-template-columns:1fr}
+  #view-roster .roster-all-event-grid{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .season-view-selector{margin-bottom:12px;padding:12px;align-items:stretch}
+  .season-view-selector label{width:100%;justify-content:space-between}
+  .season-view-selector select{flex:1;min-width:0}
+  .season-view-note{font-size:10px}
+  .manual-season-pickers{grid-template-columns:1fr;gap:9px}
+  .season-cards{grid-template-columns:1fr 1fr}
+  .season-card{padding:13px}
+  .season-card strong{font-size:18px}
+  #view-roster .roster-profile-title .btn{width:100%}
+  #view-roster .roster-season-control{justify-content:space-between;width:100%}
+  #view-roster .roster-season-control select{min-width:0;flex:1}
+}
+@media(max-width:420px){.season-cards{grid-template-columns:1fr}}
