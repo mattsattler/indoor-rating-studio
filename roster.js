@@ -66,10 +66,8 @@
   }
   function renderIndex(){
     // A name-only squad directory. Performance data is shown inside player profiles.
-    const surname=player=>player.name.trim().split(/\s+/).slice(-1)[0];
-    const ordered=players.slice().sort((a,b)=>surname(a).localeCompare(surname(b))||a.name.localeCompare(b.name));
+    const ordered=players.slice();
     const visible=ordered.filter(p=>(role==='all'||p.position===role)&&canonical(p.name).includes(canonical(search)));
-    const countByPosition=key=>players.filter(p=>p.position===key).length;
     function playerRow(player){
       return `<button type="button" class="roster-name-row" data-roster-player="${player.id}" aria-label="View ${clean(player.name)} profile">
         ${avatar(player)}
@@ -77,16 +75,18 @@
         <span class="roster-name-arrow" aria-hidden="true">›</span>
       </button>`;
     }
-    // Balance the directory into three Premier League-style list panels on desktop.
-    const chunkSize=Math.ceil(visible.length/3);
-    const chunks=chunkSize ? [visible.slice(0,chunkSize),visible.slice(chunkSize,chunkSize*2),visible.slice(chunkSize*2)]
-      .filter(group=>group.length) : [];
     root.innerHTML=`
-      <div class="page-heading roster-page-heading"><div><div class="eyebrow">NORTHLAND NOMADS <span class="eyebrow-line"></span> V3 BETA</div><h1>Team <em>roster.</em></h1><p>Browse the squad. Select a name to view the player's full statistics.</p></div><span class="roster-heading-pill"><span class="roster-live-dot"></span>${players.length} PLAYERS</span></div>
-      <section class="roster-directory roster-directory-simple" aria-label="Northland Nomads roster">
-        <div class="roster-section-head"><div><span class="roster-section-kicker">NORTHLAND NOMADS · 2026</span><h2>First team<span>.</span></h2></div></div>
-        <div class="roster-controls"><label class="roster-search"><span aria-hidden="true">⌕</span><input id="rosterSearch" type="search" placeholder="Search players" autocomplete="off" value="${clean(search)}" aria-label="Search team roster"></label><div class="roster-filter" role="group" aria-label="Filter roster by position">${[['all','All',players.length],['mixed','Mixed',countByPosition('mixed')],['defender','Defenders',countByPosition('defender')],['forward','Forwards',countByPosition('forward')]].map(([key,label,count])=>`<button class="roster-filter-btn${role===key?' active':''}" type="button" data-roster-filter="${key}" aria-pressed="${role===key}">${label}<span>${count}</span></button>`).join('')}</div></div>
-        <div class="roster-name-grid">${chunks.map((group,index)=>`<div class="roster-name-panel roster-name-panel-${index+1}">${group.map(playerRow).join('')}</div>`).join('')}${visible.length?'':'<div class="roster-no-results">No players match your search or selected position.</div>'}</div>
+      <header class="la-roster-banner">
+        <div class="la-roster-banner-copy"><div class="la-roster-team">Northland Nomads</div><h1>Roster</h1><p>2026/27 Indoor Season</p></div>
+        <div class="la-roster-diagonals" aria-hidden="true"><i></i><i></i></div>
+        <div class="la-roster-mark" aria-hidden="true"><i></i><i></i></div>
+      </header>
+      <section class="la-roster-body" aria-label="Northland Nomads player directory">
+        <div class="roster-controls">
+          <div class="roster-filter" role="group" aria-label="Filter players by position">${[['all','All Players'],['mixed','Mixed'],['forward','FWD'],['defender','DEF']].map(([key,label])=>`<button class="roster-filter-btn${role===key?' active':''}" type="button" data-roster-filter="${key}" aria-pressed="${role===key}">${label}</button>`).join('')}</div>
+          <label class="roster-search"><span aria-hidden="true">⌕</span><input id="rosterSearch" type="search" placeholder="Search roster..." autocomplete="off" value="${clean(search)}" aria-label="Search team roster"></label>
+        </div>
+        <div class="roster-name-grid">${visible.map(playerRow).join('')}${visible.length?'':'<div class="roster-no-results">No players match your search or selected position.</div>'}</div>
       </section>`;
     const input=document.getElementById('rosterSearch');
     if(input){input.addEventListener('input',e=>{const caret=e.target.selectionStart;search=e.target.value;renderIndex();const next=document.getElementById('rosterSearch');next.focus();try{next.setSelectionRange(caret,caret)}catch(_){}});}
