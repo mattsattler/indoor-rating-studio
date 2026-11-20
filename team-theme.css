@@ -339,6 +339,60 @@ body:has(#view-roster.active) .sidebar .brand.team-brand {
   .team-brand-copy small{font-size:7px!important}
   .team-crest{width:36px;height:43px;flex-basis:36px}
 }
+
+/* Laptop and zoomed-browser match center: keep player info and rating in flow.
+   At narrower desktop widths, the sidebar otherwise leaves too little room for
+   the two fixed-width hero columns. Decorative glow layers stay absolute. */
+.score-hero > .hero-left,
+.score-hero > .hero-right {
+  position: relative;
+  z-index: 1;
+}
+.score-hero > .hero-glow {
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  flex: none;
+}
+@media (min-width: 701px) and (max-width: 900px) {
+  .score-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 22px;
+    padding: 27px 28px;
+    min-height: 0;
+  }
+  .score-hero > .hero-left {
+    flex: none;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+  .score-hero > .hero-right {
+    width: 100%;
+    flex: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 22px;
+    text-align: left;
+  }
+  .score-hero .rating-dial {
+    width: 142px;
+    height: 142px;
+    margin: 0;
+    flex: 0 0 142px;
+  }
+  .score-hero .rating-core { width: 124px; height: 124px; }
+  .score-hero .dial-number { font-size: 49px; }
+  .score-hero .dial-change { margin-top: 0; max-width: 180px; }
+  .score-hero .hero-tag { margin-bottom: 16px; }
+  .score-hero .hero-bottom { max-width: none; margin-top: 22px; }
+}
+
 @media print{
   html,body{background:#fff!important}
   .report-body{padding:0!important}
