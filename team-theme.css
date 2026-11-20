@@ -111,7 +111,8 @@ body:has(#view-roster.active) .sidebar .brand.team-brand {
 }
 .score-hero:before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:#ef4a54;border-radius:17px 0 0 17px}
 .score-hero:after{content:"";pointer-events:none;position:absolute;inset:0 0 0 auto;width:34%;z-index:0;opacity:.9;background:linear-gradient(132deg,transparent 0 40%,#f7d6da 40% 50%,transparent 50% 58%,#fde9ea 58% 72%,transparent 72% 82%,#fff4f4 82%)}
-.score-hero > *{position:relative;z-index:1}
+.score-hero > :not(.hero-glow){position:relative;z-index:1}
+.score-hero > .hero-glow{position:absolute;z-index:-1;pointer-events:none}
 .score-hero h2,.score-hero h2 span{color:#142136}
 .score-hero h2 .hero-overline{color:#e24b55;font-size:11px;letter-spacing:.15em}
 .hero-tag{color:#168f72}
