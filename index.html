@@ -3,32 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="color-scheme" content="dark">
-  <meta name="description" content="Indoor Rating Studio — an offline indoor soccer match rating calculator, full match reports and portable backups.">
-  <title>Indoor Rating Studio | V3 Beta</title>
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Northland Nomads team performance hub for match tracking, player profiles, ratings and reports.">
+  <title>Northland Nomads | Team Hub</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png">
   <meta name="theme-color" content="#080e1c">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Indoor Studio">
+  <meta name="apple-mobile-web-app-title" content="Nomads">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="roster.css">
   <link rel="stylesheet" href="mobile.css" media="screen and (max-width: 700px)">
   <link rel="stylesheet" href="roster-redesign.css?v=roster-sleek-11">
+  <link rel="stylesheet" href="team-theme.css?v=nomads-team-12">
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar" aria-label="Main navigation">
-      <div class="brand">
-        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
-        <div><strong>INDOOR<span class="brand-alt">/</span>STUDIO</strong><small>MATCH INTELLIGENCE · V3 BETA</small></div>
+      <div class="brand team-brand">
+        <div class="team-crest" aria-hidden="true"><span>N</span></div>
+        <div class="team-brand-copy"><strong>NORTHLAND<br>NOMADS</strong><small>TEAM PERFORMANCE · V3 BETA</small></div>
       </div>
-      <div class="la-side-brand" aria-hidden="true"><span class="la-side-brand-logo"><i></i><i></i></span><strong>INDOOR<br>RATING STUDIO</strong><small>MATCH INTELLIGENCE</small></div>
-      <div class="la-side-team" aria-hidden="true"><div class="la-team-shield"><span>N</span></div><div class="la-side-team-name">Northland<br>Nomads</div></div>
       <div class="side-label">WORKSPACE</div>
       <nav class="side-nav">
-        <button class="nav-link selected" data-view="studio" type="button"><span class="nav-icon">◈</span><span>Match studio</span><span class="nav-index">01</span></button>
+        <button class="nav-link selected" data-view="studio" type="button"><span class="nav-icon">◈</span><span>Match center</span><span class="nav-index">01</span></button>
         <button class="nav-link" data-view="roster" type="button"><span class="nav-icon">♟</span><span>Roster</span><span class="nav-index">02</span></button>
         <button class="nav-link" data-view="library" type="button"><span class="nav-icon">▤</span><span>Match library</span><span class="nav-index">03</span></button>
         <button class="nav-link" data-view="analytics" type="button"><span class="nav-icon">▥</span><span>Analytics</span><span class="nav-index">04</span></button>
@@ -37,9 +36,9 @@
       </nav>
       <div class="side-spacer"></div>
       <div class="sidebar-foot">
-        <div class="offline-pill"><span class="status-dot"></span>LOCAL APPLICATION</div>
-        <div class="sidebar-foot-title">Own your data.</div>
-        <p>Your stats stay on your device. Export a backup anytime.</p>
+        <div class="offline-pill"><span class="status-dot"></span>TEAM WORKSPACE</div>
+        <div class="sidebar-foot-title">Nomads match archive</div>
+        <p>Records are stored on this device. Export a backup to keep them.</p>
         <button class="btn btn-secondary btn-full" type="button" id="sideExport">Export backup <span>↗</span></button>
       </div>
     </aside>
@@ -47,16 +46,16 @@
     <div class="main-panel">
       <header class="topbar">
         <div class="topbar-left"><span class="topbar-signal"></span> 5 + GK <span class="topbar-divider">/</span> 25-minute halves <span class="topbar-divider">/</span> Unlimited subs</div>
-        <div class="topbar-right"><span id="saveState" class="save-state">● Locally saved</span><div class="avatar">IR</div></div>
+        <div class="topbar-right"><span id="saveState" class="save-state">● Locally saved</span><div class="avatar">NN</div></div>
       </header>
 
       <main>
         <section id="view-studio" class="view active" aria-label="Match studio">
-          <div class="page-heading"><div><div class="eyebrow">THE PERFORMANCE LAB <span class="eyebrow-line"></span> V3 BETA</div><h1>Match <em>studio.</em></h1><p>Every contribution counts. Track the details, own the result.</p></div><div class="heading-actions"><button type="button" class="btn btn-secondary" id="newMatch">＋ New match</button><button type="button" class="btn btn-primary" id="saveMatchTop">Save match <span>↗</span></button></div></div>
+          <div class="page-heading"><div><div class="eyebrow">NORTHLAND NOMADS <span class="eyebrow-line"></span> 2026/27</div><h1>Match <em>center.</em></h1><p>Record a performance, review every contribution, and save the match.</p></div><div class="heading-actions"><button type="button" class="btn btn-secondary" id="newMatch">＋ New match</button><button type="button" class="btn btn-primary" id="saveMatchTop">Save match <span>↗</span></button></div></div>
 
           <section class="score-hero" aria-label="Live performance score">
             <div class="hero-glow glow-a"></div><div class="hero-glow glow-b"></div>
-            <div class="hero-left"><div class="hero-tag"><span class="live-dot"></span> LIVE RATING ENGINE</div><h2 id="heroName">Player<br><span>performance.</span></h2><div class="hero-info"><span id="heroPosition">MIDFIELDER</span><span class="hero-separator"></span><span id="heroOpponent">ADD YOUR OPPONENT</span></div><div class="hero-bottom"><span class="hero-key">MATCH RATING</span><div class="rating-gradient-bar"><span id="ratingProgressFill"></span></div><div class="hero-scale"><span>3.0</span><span>6.5 BASE</span><span>10.0</span></div></div></div>
+            <div class="hero-left"><div class="hero-tag"><span class="live-dot"></span> MATCH PERFORMANCE</div><h2 id="heroName">Player<br><span>performance.</span></h2><div class="hero-info"><span id="heroPosition">MIDFIELDER</span><span class="hero-separator"></span><span id="heroOpponent">ADD YOUR OPPONENT</span></div><div class="hero-bottom"><span class="hero-key">MATCH RATING</span><div class="rating-gradient-bar"><span id="ratingProgressFill"></span></div><div class="hero-scale"><span>3.0</span><span>6.5 BASE</span><span>10.0</span></div></div></div>
             <div class="hero-right"><div class="rating-dial" id="ratingDial"><div class="rating-core"><span class="dial-label">LIVE RATING</span><span class="dial-number" id="ratingNumber">6.5</span><span class="dial-grade" id="ratingGrade">AVERAGE</span></div></div><div class="dial-change" id="ratingChange">+0.00 from base</div></div>
           </section>
 
@@ -116,30 +115,30 @@
         </section>
 
         <section id="view-library" class="view" aria-label="Saved match library" hidden>
-          <div class="page-heading"><div><div class="eyebrow">YOUR MATCH ARCHIVE</div><h1>Match <em>library.</em></h1><p>Every performance, saved and ready to review.</p></div><div class="heading-actions"><button class="btn btn-secondary" type="button" id="libraryExportCSV">Export all CSV ↗</button><button class="btn btn-primary" type="button" id="libraryNew">＋ Track a match</button></div></div>
+          <div class="page-heading"><div><div class="eyebrow">NORTHLAND NOMADS · MATCH ARCHIVE</div><h1>Match <em>library.</em></h1><p>Every performance, saved and ready to review.</p></div><div class="heading-actions"><button class="btn btn-secondary" type="button" id="libraryExportCSV">Export all CSV ↗</button><button class="btn btn-primary" type="button" id="libraryNew">＋ Track a match</button></div></div>
           <div id="libraryStats" class="library-summary"></div>
           <section class="surface library-panel"><div class="section-header"><div><div class="section-eyebrow">ALL PERFORMANCES</div><h3>Recorded matches</h3></div><span class="header-aside" id="libraryCount">0 matches</span></div><div class="library-toolbar"><label class="field search-field"><span>SEARCH LIBRARY</span><input id="librarySearch" type="search" placeholder="Search players, teams, opponents..."></label><label class="field sort-field"><span>SORT</span><select id="librarySort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="rating">Highest rating</option><option value="player">Player A–Z</option></select></label></div><div id="libraryList" class="library-list"></div></section>
         </section>
 
         <section id="view-analytics" class="view" aria-label="Match analytics" hidden>
-          <div class="page-heading"><div><div class="eyebrow">BEYOND THE FINAL WHISTLE</div><h1>Player <em>analytics.</em></h1><p>Spot trends across your recorded matches.</p></div></div>
+          <div class="page-heading"><div><div class="eyebrow">NORTHLAND NOMADS · SEASON REVIEW</div><h1>Player <em>analytics.</em></h1><p>Spot trends across your recorded matches.</p></div></div>
           <div id="analyticsKpis" class="analytics-kpis"></div>
           <div class="analytics-grid"><section class="surface analytics-chart"><div class="section-header"><div><div class="section-eyebrow">RATING HISTORY</div><h3>Recent performances</h3></div><span class="header-aside">Last 12 matches</span></div><div id="ratingChart" class="rating-chart"></div></section><section class="surface analytics-recent"><div class="section-header"><div><div class="section-eyebrow">FORM GUIDE</div><h3>Top performances</h3></div></div><div id="topPerformances"></div></section></div>
           <p class="small-footnote">Analysis is based on the saved matches currently in this browser. Import a backup to bring back exported history.</p>
         </section>
 
         <section id="view-data" class="view" aria-label="Data management and settings" hidden>
-          <div class="page-heading"><div><div class="eyebrow">CUSTOMIZE YOUR EXPERIENCE</div><h1>Data & <em>settings.</em></h1><p>Keep the records, make the formula yours.</p></div></div>
+          <div class="page-heading"><div><div class="eyebrow">NORTHLAND NOMADS · TEAM SETTINGS</div><h1>Data & <em>settings.</em></h1><p>Keep the records, make the formula yours.</p></div></div>
           <div class="data-grid"><section class="surface data-card"><div class="data-icon mint">↗</div><div class="section-eyebrow">PORTABLE BACKUPS</div><h3>Export your data.</h3><p>Download a complete JSON backup for importing later, or a spreadsheet-ready CSV with every tracked event.</p><button id="exportJSON" class="btn btn-primary btn-full" type="button">Export complete JSON backup ↗</button><button id="exportCSV" class="btn btn-secondary btn-full" type="button">Export library CSV ↗</button><small>Includes all tracked event counts (even zero), match ratings and event weights.</small></section>
-          <section class="surface data-card"><div class="data-icon lilac">↙</div><div class="section-eyebrow">RESTORE YOUR HISTORY</div><h3>Import performances.</h3><p>Restore a Studio JSON backup or a library CSV previously exported by this app.</p><label class="field"><span>IMPORT MODE</span><select id="importMode"><option value="merge">Merge matches (recommended)</option><option value="replace">Replace entire match library</option></select></label><button id="importButton" class="btn btn-primary btn-full" type="button">Choose JSON / CSV to import ↗</button><input type="file" accept=".json,.csv,application/json,text/csv" id="importFile" hidden><small>Merge matches by ID. Replace overwrites your existing library after confirmation.</small></section></div>
+          <section class="surface data-card"><div class="data-icon lilac">↙</div><div class="section-eyebrow">RESTORE YOUR HISTORY</div><h3>Import performances.</h3><p>Restore a team JSON backup or a library CSV previously exported by this app.</p><label class="field"><span>IMPORT MODE</span><select id="importMode"><option value="merge">Merge matches (recommended)</option><option value="replace">Replace entire match library</option></select></label><button id="importButton" class="btn btn-primary btn-full" type="button">Choose JSON / CSV to import ↗</button><input type="file" accept=".json,.csv,application/json,text/csv" id="importFile" hidden><small>Merge matches by ID. Replace overwrites your existing library after confirmation.</small></section></div>
           <section class="surface weights-panel"><div class="section-header"><div><div class="section-eyebrow">RATING ENGINE</div><h3>Customize the weights<span class="title-point">.</span></h3></div><button id="resetWeights" class="btn btn-secondary" type="button">Restore defaults ↺</button></div><p class="section-subtitle">V3 Beta MASL-informed baseline: most original weights remain proportionally scaled by 0.63636×. Shooting uses the agreed indoor values (goal +0.70, ordinary miss −0.025, blocked attempt 0.00). Position multipliers still apply. Previously saved matches keep their saved weights.</p><div class="weight-header"><span>EVENT</span><span>POINT VALUE</span></div><div id="weightList"></div><div class="settings-note">Rating = 6.5 + sum(event count × event weight × position multiplier), limited to 3.0–10.0. MASL provides scoring frequency benchmarks, not passing/dribbling weights or official player-rating points. These proportional values are a customizable starting model, not MASL or SofaScore ratings.</div></section>
           <section class="surface data-warning"><div><h3>Storage information</h3><p>For local files opened with <code>file://</code>, browser storage behavior can vary. The app saves locally when permitted, but JSON exports are your portable backup. Use the same browser and file location when reopening.</p></div><span id="storageIndicator" class="storage-tag">Checking browser storage</span></section>
         </section>
 
         <section id="view-methodology" class="view" aria-label="Rating methodology and event glossary" hidden>
-          <div class="page-heading method-page-heading"><div><div class="eyebrow">THE RATING FRAMEWORK <span class="eyebrow-line"></span> V3 BETA</div><h1><em>Method</em>ology.</h1><p>How the rating works, where its weights came from, and exactly how to record every event.</p></div><span class="method-count-pill">40 tracked events · 5 categories</span></div>
+          <div class="page-heading method-page-heading"><div><div class="eyebrow">NORTHLAND NOMADS <span class="eyebrow-line"></span> RATING FRAMEWORK</div><h1><em>Method</em>ology.</h1><p>How the rating works, where its weights came from, and exactly how to record every event.</p></div><span class="method-count-pill">40 tracked events · 5 categories</span></div>
           <section class="method-overview" aria-label="How weights were established">
-            <div class="method-overview-copy"><span class="section-eyebrow">01 / WEIGHT DEVELOPMENT</span><h2>Built for arena soccer.</h2><p>Indoor Rating Studio starts from an independently chosen event-weight framework. The original outdoor-style goal benchmark was <strong>+1.10</strong>; we selected <strong>+0.70</strong> for this 5+GK format. That gives a <strong>0.63636× multiplier</strong> (a 36.36% reduction), applied to most original event weights to preserve their relative priorities.</p><p>For V3 Beta, the shooting events were then adjusted separately: goals <strong>+0.70</strong>, saved/on-target shots <strong>+0.075</strong>, regular misses <strong>−0.025</strong>, blocked attempts <strong>0</strong>, big misses <strong>−0.230</strong>, and exceptional misses <strong>−0.300</strong>. Position factors still affect each category; mixed-role performances use a playing-time-weighted average.</p></div>
+            <div class="method-overview-copy"><span class="section-eyebrow">01 / WEIGHT DEVELOPMENT</span><h2>Built for arena soccer.</h2><p>The Northland Nomads rating framework starts from an independently chosen event-weight model. The original outdoor-style goal benchmark was <strong>+1.10</strong>; we selected <strong>+0.70</strong> for this 5+GK format. That gives a <strong>0.63636× multiplier</strong> (a 36.36% reduction), applied to most original event weights to preserve their relative priorities.</p><p>For V3 Beta, the shooting events were then adjusted separately: goals <strong>+0.70</strong>, saved/on-target shots <strong>+0.075</strong>, regular misses <strong>−0.025</strong>, blocked attempts <strong>0</strong>, big misses <strong>−0.230</strong>, and exceptional misses <strong>−0.300</strong>. Position factors still affect each category; mixed-role performances use a playing-time-weighted average.</p></div>
             <div class="method-reference-card"><span class="method-reference-label">MASL REFERENCE · 2025–26</span><strong>11.98</strong><span class="method-reference-unit">goals per match · both teams</span><div class="method-reference-separator"></div><div class="method-reference-stats"><div><strong>1,150</strong><span>regular-season goals</span></div><div><strong>96</strong><span>regular-season matches</span></div></div><p>MASL figures help check arena scoring frequency. The league does <strong>not</strong> publish the individual rating weights used here, and public MASL tracking does not cover this entire 40-event glossary.</p><a href="https://digitalshift-assets.sfo2.cdn.digitaloceanspaces.com/pw/52a4447e-3bb2-40af-b051-2d68f227347e/f-f4ff4441-85aa-40ac-a334-3db4bdea1c36/MASL%20STAT%20PACK%20419.pdf" target="_blank" rel="noopener noreferrer">Official MASL statistics ↗</a><a href="https://www.maslsoccer.com/news/around-the-league-awards-season" target="_blank" rel="noopener noreferrer">MASL analytics context ↗</a></div>
           </section>
           <div class="method-triad"><div class="method-fact"><span>BASE RATING</span><strong>6.5</strong><small>Before tracked events</small></div><div class="method-fact"><span>INDOOR MULTIPLIER</span><strong>0.636×</strong><small>Starting proportional scale</small></div><div class="method-fact"><span>RATING RANGE</span><strong>3–10</strong><small>Final result is capped</small></div></div>
@@ -149,12 +148,12 @@
           <div class="method-disclaimer"><span>ⓘ</span><p><strong>Model status: V3 Beta.</strong> This is an independent, adjustable, MASL-informed arena soccer model, not an official MASL, SofaScore or FotMob match rating. MASL uses 60-minute stop-clock matches; this application targets 50-minute recreational matches. Recalibrate with complete local observations before treating ratings as validated comparisons.</p></div>
         </section>
       </main>
-      <footer class="app-footer"><span>INDOOR / STUDIO <span>© 2026</span></span><span>V3 BETA <i>✳</i> OFFLINE FIRST</span></footer>
+      <footer class="app-footer"><span>NORTHLAND NOMADS <span>· 2026/27</span></span><span>TEAM PERFORMANCE <i>✳</i> LOCAL DATA</span></footer>
     </div>
   </div>
 
   <div id="reportModal" class="modal-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="reportHeading">
-    <div class="report-window"><div class="report-toolbar no-print"><div><span class="section-eyebrow">MATCH REPORT</span><strong id="reportHeading">Full performance report</strong></div><div class="report-tools"><button id="reportJSON" class="btn btn-secondary" type="button">JSON ↗</button><button id="reportCSV" class="btn btn-secondary" type="button">CSV ↗</button><button id="reportPrint" class="btn btn-primary" type="button">Print / PDF ↗</button><button id="reportClose" class="close-btn" type="button" aria-label="Close report">×</button></div></div><div id="reportBody" class="report-body"></div></div>
+    <div class="report-window"><div class="report-toolbar no-print"><div><span class="section-eyebrow">MATCH REPORT</span><strong id="reportHeading">Team match report</strong></div><div class="report-tools"><button id="reportJSON" class="btn btn-secondary" type="button">JSON ↗</button><button id="reportCSV" class="btn btn-secondary" type="button">CSV ↗</button><button id="reportPrint" class="btn btn-primary" type="button">Print / PDF ↗</button><button id="reportClose" class="close-btn" type="button" aria-label="Close report">×</button></div></div><div id="reportBody" class="report-body"></div></div>
   </div>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <script src="ratings.js"></script>

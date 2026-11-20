@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Indoor Rating Studio",
-  "short_name": "Indoor Studio",
-  "description": "V3 Beta arena soccer performance tracking and match reports.",
+  "name": "Northland Nomads",
+  "short_name": "Nomads",
+  "description": "Northland Nomads roster, match ratings and team performance records.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
