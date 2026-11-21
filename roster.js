@@ -4,6 +4,10 @@
    No changes to the event engine, weights or saved-match data format. */
 (function (global) {
   'use strict';
+  const playerPhotos = Object.freeze({
+    'matt-sattler': 'matt-sattler',
+    'john-paris': 'john-paris'
+  });
   const players = [
     {name:'Matt Sattler',position:'mixed',birthdate:'08/26/2001'},
     {name:'Cubarsi Castillo',position:'defender',birthdate:null},
@@ -20,7 +24,7 @@
     {name:'Billy Lipp',position:'mixed',birthdate:null},
     {name:'Joe Reina',position:'mixed',birthdate:null},
     {name:'Jackson Williams',position:'mixed',birthdate:null}
-  ].map((p,i)=>({ ...p,id:p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),index:i,foot:'Right' }));
+  ].map((p,i)=>({ ...p,id:p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),index:i,foot:'Right', photo:playerPhotos[p.name.toLowerCase().replace(/[^a-z0-9]+/g,'-')]||null }));
   const palette = [
     ['#8f7bfa','#55dac6'], ['#62b5ff','#a28cff'], ['#f085a9','#aa8eff'],
     ['#40c9b9','#65acff'], ['#b08bff','#ff94a7'], ['#66c5fd','#49d6bd']
@@ -69,7 +73,11 @@
   const seasonControl=()=>`<label class="roster-season-control">SEASON <select data-roster-season aria-label="Roster season">${seasonOptions()}</select></label>`;
   function avatar(player,large=false){
     const [colorA,colorB]=palette[player.index%palette.length];
-    return `<span class="roster-avatar${large?' roster-avatar-large':''}" style="--roster-a:${colorA};--roster-b:${colorB}" aria-hidden="true"><span>${clean(getInitials(player.name))}</span></span>`;
+    const photo=player.photo;
+    const content=photo
+      ? `<img src="player-photos/${photo}${large?'':'-thumb'}.jpg" alt="" loading="${large?'eager':'lazy'}" decoding="async">`
+      : `<span>${clean(getInitials(player.name))}</span>`;
+    return `<span class="roster-avatar${large?' roster-avatar-large':''}${photo?' has-photo':''}" style="--roster-a:${colorA};--roster-b:${colorB}" aria-hidden="true">${content}</span>`;
   }
   function kpi(label,value,detail,accent='purple'){
     return `<div class="roster-kpi roster-accent-${accent}"><span>${clean(label)}</span><strong>${clean(value)}</strong><small>${clean(detail)}</small></div>`;
