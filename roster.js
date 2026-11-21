@@ -75,7 +75,7 @@
     const [colorA,colorB]=palette[player.index%palette.length];
     const photo=player.photo;
     const content=photo
-      ? `<img src="player-photos/${photo}${large?'':'-thumb'}.jpg" alt="" loading="${large?'eager':'lazy'}" decoding="async">`
+      ? `<img src="player-photos/${photo}${large?'':'-thumb'}.png" alt="" loading="${large?'eager':'lazy'}" decoding="async" width="${large?'720':'256'}" height="${large?'850':'256'}">`
       : `<span>${clean(getInitials(player.name))}</span>`;
     return `<span class="roster-avatar${large?' roster-avatar-large':''}${photo?' has-photo':''}" style="--roster-a:${colorA};--roster-b:${colorB}" aria-hidden="true">${content}</span>`;
   }
