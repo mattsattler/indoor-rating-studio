@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="mobile.css" media="screen and (max-width: 700px)">
   <link rel="stylesheet" href="roster-redesign.css?v=roster-sleek-11">
   <link rel="stylesheet" href="team-theme.css?v=nomads-season-17">
+  <link rel="stylesheet" href="comparison.css?v=nomads-compare-18">
 </head>
 <body>
   <div class="app-shell">
@@ -31,8 +32,9 @@
         <button class="nav-link" data-view="roster" type="button"><span class="nav-icon">♟</span><span>Roster</span><span class="nav-index">02</span></button>
         <button class="nav-link" data-view="library" type="button"><span class="nav-icon">▤</span><span>Match library</span><span class="nav-index">03</span></button>
         <button class="nav-link" data-view="analytics" type="button"><span class="nav-icon">▥</span><span>Analytics</span><span class="nav-index">04</span></button>
-        <button class="nav-link" data-view="data" type="button"><span class="nav-icon">⚙</span><span>Data & settings</span><span class="nav-index">05</span></button>
-        <button class="nav-link" data-view="methodology" type="button"><span class="nav-icon">◧</span><span>Methodology</span><span class="nav-index">06</span></button>
+        <button class="nav-link" data-view="comparison" type="button"><span class="nav-icon">⇄</span><span>Player comparison</span><span class="nav-index">05</span></button>
+        <button class="nav-link" data-view="data" type="button"><span class="nav-icon">⚙</span><span>Data & settings</span><span class="nav-index">06</span></button>
+        <button class="nav-link" data-view="methodology" type="button"><span class="nav-icon">◧</span><span>Methodology</span><span class="nav-index">07</span></button>
       </nav>
       <div class="side-spacer"></div>
       <div class="sidebar-foot">
@@ -140,6 +142,11 @@
           <section class="surface data-warning"><div><h3>Storage information</h3><p>For local files opened with <code>file://</code>, browser storage behavior can vary. The app saves locally when permitted, but JSON exports are your portable backup. Use the same browser and file location when reopening.</p></div><span id="storageIndicator" class="storage-tag">Checking browser storage</span></section>
         </section>
 
+        <section id="view-comparison" class="view" aria-label="Player and season comparison" hidden>
+          <div class="page-heading"><div><div class="eyebrow">NORTHLAND NOMADS <span class="eyebrow-line"></span> PLAYER ANALYTICS</div><h1>Player <em>comparison.</em></h1><p>Compare teammates or review a player's development across different seasons.</p></div></div>
+          <div id="comparisonRoot" class="comparison-root" aria-live="polite"></div>
+        </section>
+
         <section id="view-methodology" class="view" aria-label="Rating methodology and event glossary" hidden>
           <div class="page-heading method-page-heading"><div><div class="eyebrow">NORTHLAND NOMADS <span class="eyebrow-line"></span> RATING FRAMEWORK</div><h1><em>Method</em>ology.</h1><p>How the rating works, where its weights came from, and exactly how to record every event.</p></div><span class="method-count-pill">40 tracked events · 5 categories</span></div>
           <section class="method-overview" aria-label="How weights were established">
@@ -164,7 +171,8 @@
   <script src="ratings.js"></script>
   <script src="storage.js?v=nomads-season-17"></script>
   <script src="roster.js?v=nomads-season-17"></script>
-  <script src="script.js?v=nomads-season-17"></script>
+  <script src="script.js?v=nomads-compare-18"></script>
+  <script src="comparison.js?v=nomads-compare-18"></script>
   <script src="pwa.js" defer></script>
   <script src="mobile-nav.js" defer></script>
 </body>

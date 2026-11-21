@@ -273,6 +273,7 @@
     if(currentView==='roster')window.RosterView.render(state.matches,id,state.manualSeasonStats,state.seasons);
     if(currentView==='library')renderLibrary();
     if(currentView==='analytics')renderAnalytics();
+    if(currentView==='comparison' && window.ComparisonView)window.ComparisonView.render(state,id);
     if(currentView==='data'){renderSeasonManager();$('manualSeason').value=id;renderManualSeasonEditor();}
   }
   function renderSeasonManager(){
@@ -327,13 +328,14 @@
     notify(`${S.seasonName(next)} is active. Previous seasons are preserved.`);
   }
   function showView(view) {
-    if(!['studio','roster','library','analytics','data','methodology'].includes(view))return;
+    if(!['studio','roster','library','analytics','comparison','data','methodology'].includes(view))return;
     currentView=view;
     document.querySelectorAll('.view').forEach(el=>{el.hidden=el.id!=='view-'+view;el.classList.toggle('active',!el.hidden);});
     document.querySelectorAll('[data-view]').forEach(btn=>btn.classList.toggle('selected',btn.dataset.view===view));
     if(view==='roster' && window.RosterView)window.RosterView.render(state.matches,state.viewSeasonId,state.manualSeasonStats,state.seasons);
     if(view==='library')renderLibrary();
     if(view==='analytics')renderAnalytics();
+    if(view==='comparison' && window.ComparisonView)window.ComparisonView.render(state,state.viewSeasonId);
     if(view==='data'){renderWeights();renderSeasonManager();renderManualSeasonEditor();}
     if(view==='methodology')renderMethodology();
     window.scrollTo({top:0,behavior:'instant'});
