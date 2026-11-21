@@ -9,7 +9,7 @@
     'john-paris': 'john-paris'
   });
   const players = [
-    {name:'Matt Sattler',position:'mixed',birthdate:'08/26/2001'},
+    {name:'Matt Sattler',position:'mixed',birthdate:'08/26/2001',hometown:'Kansas City'},
     {name:'Cubarsi Castillo',position:'defender',birthdate:null},
     {name:'Blake Aerni',position:'mixed',birthdate:null},
     {name:'Joe Epperson',position:'mixed',birthdate:null},
@@ -119,14 +119,13 @@
     const [colorA,colorB]=palette[player.index%palette.length];
     const latest=dates.length?`<section class="roster-recent"><div class="roster-stat-panel-heading"><h3>Recent performances</h3><small>Saved matches on this device</small></div>${dates.map(match=>`<div class="roster-recent-row"><div><strong>vs ${clean(match.opponent||'Opponent not recorded')}</strong><span>${clean(match.date)} · ${number(match.minutes)} min</span></div><div class="roster-recent-rating">${Number(match.rating).toFixed(1)}</div></div>`).join('')}</section>`:'<div class="roster-empty-records">No match performances have been saved for this player yet. Their season statistics will update when matches are recorded under this name.</div>';
     root.innerHTML=`
-      <div class="roster-profile-top"><button type="button" class="roster-back" data-roster-back><span aria-hidden="true">←</span> Back to roster</button>${seasonControl()}<span class="roster-profile-top-meta">NORTHLAND NOMADS <span> / </span> PLAYER PROFILE</span></div>
+      <div class="roster-profile-top"><button type="button" class="roster-back" data-roster-back><span aria-hidden="true">←</span> Back to roster</button>${seasonControl()}<span class="roster-profile-top-meta">ROSTER <span> / </span> PLAYER PROFILE</span></div>
       <div class="roster-profile-layout">
         <div class="roster-profile-hero" style="--roster-a:${colorA};--roster-b:${colorB}">
           <div class="roster-portrait">${avatar(player,true)}</div>
-          <div class="roster-profile-hero-kicker">NORTHLAND NOMADS <span>·</span> PLAYER PROFILE</div>
-          <div class="roster-profile-identity"><div class="roster-profile-name">${clean(player.name)}</div><div class="roster-profile-subline"><span>Northland Nomads</span><span>${clean(posLabel[player.position])}</span></div>
-            <div class="roster-hero-info"><div><span>Positions</span><strong>${clean(posLabel[player.position])}</strong></div><div><span>Birthdate</span><strong>${clean(player.birthdate||'—')}</strong></div><div><span>Preferred foot</span><strong>${clean(player.foot)}</strong></div><div><span>Club</span><strong>Northland Nomads</strong></div></div>
-            <div class="roster-profile-footnote roster-profile-footnote-hero">Season data is stored on this device. Manually entered totals replace matching match-aggregated totals, without affecting individual reports.</div></div>
+          <div class="roster-profile-hero-kicker">FIRST TEAM <span>·</span> PLAYER PROFILE</div>
+          <div class="roster-profile-identity"><div class="roster-profile-name">${clean(player.name)}</div>
+            <div class="roster-hero-info"><div><span>Position</span><strong>${clean(posLabel[player.position])}</strong></div><div><span>Birthdate</span><strong>${clean(player.birthdate||'—')}</strong></div><div><span>Preferred foot</span><strong>${clean(player.foot)}</strong></div><div><span>Club</span><strong>Northland Nomads</strong></div><div><span>Hometown</span><strong>${clean(player.hometown||'—')}</strong></div></div></div>
         </div>
         <div class="roster-profile-main"><div class="roster-profile-title"><div><div class="eyebrow">PLAYER PERFORMANCE <span class="eyebrow-line"></span> ${clean(seasonId)} SEASON</div><h2>Season overview</h2><p>${clean(posLabel[player.position])} · ${stats.apps} ${stats.apps===1?'appearance':'appearances'} · ${stats.recordedGames} rated matches</p></div><button type="button" class="btn btn-secondary" data-season-edit-player="${clean(player.id)}">Edit season statistics</button></div>
           <div class="roster-profile-kpis">${kpi('Appearances',stats.apps,'Recorded matches','purple')}${kpi('Goals',stats.goals,'Total scored','coral')}${kpi('Assists',stats.assists,'Total created','mint')}${kpi('Average rating',stats.rating===null?'—':stats.rating.toFixed(1),'Recorded matches only','blue')}</div>

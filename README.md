@@ -1,15 +1,15 @@
-Northland Nomads — Player Card Final Tweak
+Northland Nomads — Player Profile Banner Refinement
 
-What changed
-- Moved the small player information block into the red player card on the right side.
-- Removed the separate left-side player info panel.
-- Expanded Season Overview to use the full available width below the player card.
-- Kept Player Comparison unchanged.
+Install on GitHub (main branch root):
+Replace index.html, roster.js, roster-redesign.css, and service-worker.js.
+Keep the existing player-photos directory and all other app files unchanged.
 
-Replace these files in your repository:
-- roster.js
-- roster-redesign.css
-- README.md (optional)
+Changes:
+- Simplified profile headers: first-team label, player name, position, birthdate, preferred foot, club, hometown.
+- Matt Sattler hometown: Kansas City. Unknown hometowns display a dash.
+- Removed repeated club text and the local-season-data paragraph from the red card.
+- Portraits anchored precisely to the banner's lower edge (zero CSS bottom gap).
+- Season overview remains full-width.
+- Player Comparison and rating/storage calculations are unchanged.
 
-Notes
-- Existing player photos, comparison layout, season management, match center, and saved data are unchanged.
+Cache-bust asset refs and updated service worker cache name are included.
